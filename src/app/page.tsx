@@ -29,8 +29,9 @@ export default function Home() {
                 Warrior HUD
               </h1>
               <div className="mt-4 space-y-3">
-                <HudBar label="Health" value="84 / 100" width="84%" color="from-rose-500 to-orange-300" />
-                <HudBar label="Stamina" value="61 / 100" width="61%" color="from-emerald-500 to-lime-300" />
+                <HudBar label="Health" value="100 / 100" width="100%" color="from-rose-500 to-orange-300" />
+                <HudBar label="Stamina" value="72 / 100" width="72%" color="from-emerald-500 to-lime-300" />
+                <HudBar label="Threat" value="Scout on route" width="38%" color="from-amber-500 to-yellow-300" />
               </div>
             </div>
 
@@ -41,16 +42,16 @@ export default function Home() {
                     Current Quest
                   </p>
                   <h2 className="mt-2 text-lg font-semibold text-white">
-                    Search the Moonvale grove
+                    Clear the pond road scout
                   </h2>
                 </div>
                 <span className="rounded-full border border-emerald-300/25 bg-emerald-400/12 px-3 py-1 text-xs uppercase tracking-[0.18em] text-emerald-200">
-                  Outpost Live
+                  Combat Live
                 </span>
               </div>
               <p className="mt-3 text-sm leading-6 text-stone-300">
-                Follow the road, meet Brother Alden near the house, and use this
-                build as the first real exploration milestone.
+                Brother Alden has marked a red scout near the pond. Defeat it, grab
+                the drop, and return to the outpost to close the first combat loop.
               </p>
               <Link
                 href="/milestones"
@@ -87,7 +88,7 @@ export default function Home() {
               </div>
 
               <div className="grid grid-cols-4 gap-2 sm:w-auto">
-                {["Sword", "Guard", "Potion", "Map"].map((slot, index) => (
+                {["Sword", "Talk", "Loot", "Map"].map((slot, index) => (
                   <div
                     key={slot}
                     className="relative flex h-16 w-16 items-end justify-between overflow-hidden rounded-2xl border border-white/10 bg-white/8 p-2 text-[11px] uppercase tracking-[0.18em] text-stone-200"

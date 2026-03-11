@@ -24,12 +24,22 @@ const milestones = [
   },
   {
     title: "Living Grove",
-    status: "Next",
-    summary: "Add enemies, pickups, attack hitboxes, and a clearer quest objective.",
+    status: "Complete",
+    summary: "One hostile scout, sword hit timing, knockback, a gold drop, and return-to-NPC guidance.",
     details: [
-      "Spawn at least one hostile unit with health, knockback, and aggro range.",
-      "Add a collectible or reward that proves the loop is working.",
-      "Reflect combat state back into the HUD and milestone log.",
+      "Spawned a hostile red scout that patrols the pond road and chases the player.",
+      "Added a real attack window, enemy damage, knockback, and player hit feedback.",
+      "Dropped a reward on defeat and updated Brother Alden's route once the combat loop resolves.",
+    ],
+  },
+  {
+    title: "Quest Ledger",
+    status: "Next",
+    summary: "Push combat state into a real quest tracker, add inventory, and show rewards in the HUD.",
+    details: [
+      "Track quest acceptance, in-progress, and completed states instead of relying on scene text only.",
+      "Store the first gold pickup or token in a visible inventory slot.",
+      "Mirror completed milestones back into the world log with more reactive UI.",
     ],
   },
 ];
@@ -76,7 +86,7 @@ export default function MilestonesPage() {
                 </Link>
                 <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-400/12 px-4 py-2 text-sm text-emerald-100">
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-300" />
-                  2 milestones complete
+                  3 milestones complete
                 </div>
               </div>
             </div>
@@ -92,7 +102,7 @@ export default function MilestonesPage() {
               <div className="grid grid-cols-3 gap-3">
                 <ProgressCard label="Core" value="Phaser + input" />
                 <ProgressCard label="World" value="Outpost live" />
-                <ProgressCard label="Next" value="Combat loop" />
+                <ProgressCard label="Next" value="Quest ledger" />
               </div>
             </div>
           </div>
