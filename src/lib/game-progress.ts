@@ -3,7 +3,12 @@ export type QuestStage =
   | "accepted"
   | "scout_defeated"
   | "reward_collected"
-  | "completed";
+  | "completed"
+  | "second_route_available"
+  | "second_route_active"
+  | "archer_defeated"
+  | "route_relic_collected"
+  | "second_route_completed";
 
 export type GameProgress = {
   playerHealth: number;
@@ -11,6 +16,7 @@ export type GameProgress = {
   questStage: QuestStage;
   inventory: {
     goldToken: number;
+    arrowSigil: number;
   };
 };
 
@@ -23,6 +29,7 @@ export const defaultGameProgress: GameProgress = {
   questStage: "available",
   inventory: {
     goldToken: 0,
+    arrowSigil: 0,
   },
 };
 
@@ -41,6 +48,8 @@ export function readGameProgress(raw?: string | null): GameProgress {
       inventory: {
         goldToken:
           parsed.inventory?.goldToken ?? defaultGameProgress.inventory.goldToken,
+        arrowSigil:
+          parsed.inventory?.arrowSigil ?? defaultGameProgress.inventory.arrowSigil,
       },
     };
   } catch {

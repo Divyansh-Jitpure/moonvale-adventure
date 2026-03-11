@@ -17,6 +17,11 @@ const stageLabel: Record<GameProgress["questStage"], string> = {
   scout_defeated: "Collect the dropped gold",
   reward_collected: "Return to Brother Alden",
   completed: "Moonvale route secured",
+  second_route_available: "Take the northern route",
+  second_route_active: "Defeat the red archer",
+  archer_defeated: "Collect the arrow sigil",
+  route_relic_collected: "Return with the sigil",
+  second_route_completed: "Second route secured",
 };
 
 const stageTone: Record<GameProgress["questStage"], string> = {
@@ -25,6 +30,11 @@ const stageTone: Record<GameProgress["questStage"], string> = {
   scout_defeated: "text-cyan-100 border-cyan-300/20 bg-cyan-400/12",
   reward_collected: "text-emerald-100 border-emerald-300/20 bg-emerald-400/12",
   completed: "text-emerald-100 border-emerald-300/20 bg-emerald-400/12",
+  second_route_available: "text-cyan-100 border-cyan-300/20 bg-cyan-400/12",
+  second_route_active: "text-rose-100 border-rose-300/20 bg-rose-400/12",
+  archer_defeated: "text-cyan-100 border-cyan-300/20 bg-cyan-400/12",
+  route_relic_collected: "text-emerald-100 border-emerald-300/20 bg-emerald-400/12",
+  second_route_completed: "text-emerald-100 border-emerald-300/20 bg-emerald-400/12",
 };
 
 export function LiveQuestPanel() {
@@ -78,6 +88,11 @@ export function LiveQuestPanel() {
           {progress.questStage === "scout_defeated" && "The scout is down. Pick up the dropped gold to prove the route is clear."}
           {progress.questStage === "reward_collected" && "The gold token is secured. Return to Brother Alden to close the quest."}
           {progress.questStage === "completed" && "The first combat route is complete and recorded in the Moonvale ledger."}
+          {progress.questStage === "second_route_available" && "Brother Alden has opened the northern route. Speak to him to begin the second expedition."}
+          {progress.questStage === "second_route_active" && "A red archer is holding the northern stones. Defeat it to continue."}
+          {progress.questStage === "archer_defeated" && "The archer is down. Recover its sigil from the route."}
+          {progress.questStage === "route_relic_collected" && "The sigil is secured. Return to Brother Alden to lock in the second route."}
+          {progress.questStage === "second_route_completed" && "Two combat routes are now recorded in the Moonvale ledger."}
         </p>
       </div>
 
@@ -86,8 +101,9 @@ export function LiveQuestPanel() {
           Inventory
         </p>
         <div className="mt-4 grid grid-cols-4 gap-2">
-          {["Sword", "Talk", "Gold", "Map"].map((slot, index) => {
-            const filled = slot === "Gold" && progress.inventory.goldToken > 0;
+          {["Sword", "Gold", "Sigil", "Map"].map((slot, index) => {
+            const filledGold = slot === "Gold" && progress.inventory.goldToken > 0;
+            const filledSigil = slot === "Sigil" && progress.inventory.arrowSigil > 0;
 
             return (
               <div
@@ -100,10 +116,18 @@ export function LiveQuestPanel() {
                   fill
                   className="object-cover opacity-20"
                 />
-                {filled ? (
+                {filledGold ? (
                   <Image
                     src="/assets/rewards/gold-resource.png"
                     alt="Gold token"
+                    width={28}
+                    height={28}
+                    className="relative h-7 w-7 object-contain"
+                  />
+                ) : filledSigil ? (
+                  <Image
+                    src="/assets/rewards/arrow-sigil.png"
+                    alt="Arrow sigil"
                     width={28}
                     height={28}
                     className="relative h-7 w-7 object-contain"

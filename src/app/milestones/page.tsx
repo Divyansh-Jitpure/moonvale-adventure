@@ -44,12 +44,22 @@ const milestones = [
   },
   {
     title: "Second Route",
-    status: "Next",
-    summary: "Expand the grove with another encounter, a clearer map route, and multi-step quest progression.",
+    status: "Complete",
+    summary: "Expanded the grove with a northern archer route, a second reward, and multi-step quest progression.",
     details: [
-      "Add a second hostile encounter or mini-wave to turn the grove into a route instead of one room.",
-      "Push quest state into the milestone page more deeply with route markers and completion rewards.",
-      "Start separating combat, quest, and inventory data into reusable systems.",
+      "Added a second combat route with a ranged red archer guarding the northern stones.",
+      "Extended the quest flow beyond one room: first route, unlock, second route, second reward, return.",
+      "Persisted the second sigil in inventory so the route chain remains visible in the HUD and log.",
+    ],
+  },
+  {
+    title: "Wider Grove",
+    status: "Next",
+    summary: "Turn the outpost into a larger zone with more paths, denser encounters, and better world structure.",
+    details: [
+      "Build another area or map chunk instead of stretching one scene further.",
+      "Introduce enemy combinations and a more deliberate route between them.",
+      "Separate quest and combat systems enough that new routes do not require scene rewrites.",
     ],
   },
 ];
@@ -96,7 +106,7 @@ export default function MilestonesPage() {
                 </Link>
                 <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-400/12 px-4 py-2 text-sm text-emerald-100">
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-300" />
-                  4 milestones complete
+                  5 milestones complete
                 </div>
               </div>
             </div>
@@ -112,7 +122,7 @@ export default function MilestonesPage() {
               <div className="grid grid-cols-3 gap-3">
                 <ProgressCard label="Core" value="Phaser + input" />
                 <ProgressCard label="World" value="Outpost live" />
-                <ProgressCard label="Next" value="Second route" />
+                <ProgressCard label="Next" value="Wider grove" />
               </div>
             </div>
           </div>
