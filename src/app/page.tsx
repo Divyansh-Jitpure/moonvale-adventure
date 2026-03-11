@@ -1,9 +1,13 @@
+import Image from "next/image";
+import Link from "next/link";
+
 import { GameViewport } from "@/components/game-viewport";
 
 const controls = [
   "Move: WASD / Arrow keys / Left stick / D-pad",
   "Sprint: Shift / Gamepad south button",
   "Attack: Space / Gamepad east button",
+  "Talk: E / Gamepad west button",
 ];
 
 export default function Home() {
@@ -25,24 +29,8 @@ export default function Home() {
                 Warrior HUD
               </h1>
               <div className="mt-4 space-y-3">
-                <div>
-                  <div className="mb-1 flex items-center justify-between text-xs uppercase tracking-[0.2em] text-stone-300">
-                    <span>Health</span>
-                    <span>84 / 100</span>
-                  </div>
-                  <div className="h-3 rounded-full bg-white/10">
-                    <div className="h-full w-[84%] rounded-full bg-gradient-to-r from-rose-500 to-orange-300" />
-                  </div>
-                </div>
-                <div>
-                  <div className="mb-1 flex items-center justify-between text-xs uppercase tracking-[0.2em] text-stone-300">
-                    <span>Stamina</span>
-                    <span>61 / 100</span>
-                  </div>
-                  <div className="h-3 rounded-full bg-white/10">
-                    <div className="h-full w-[61%] rounded-full bg-gradient-to-r from-emerald-500 to-lime-300" />
-                  </div>
-                </div>
+                <HudBar label="Health" value="84 / 100" width="84%" color="from-rose-500 to-orange-300" />
+                <HudBar label="Stamina" value="61 / 100" width="61%" color="from-emerald-500 to-lime-300" />
               </div>
             </div>
 
@@ -57,23 +45,36 @@ export default function Home() {
                   </h2>
                 </div>
                 <span className="rounded-full border border-emerald-300/25 bg-emerald-400/12 px-3 py-1 text-xs uppercase tracking-[0.18em] text-emerald-200">
-                  Controller Ready
+                  Outpost Live
                 </span>
               </div>
               <p className="mt-3 text-sm leading-6 text-stone-300">
-                Reach the pond, test the warrior attack, and confirm both keyboard
-                and controller input before we add enemies and dialogue.
+                Follow the road, meet Brother Alden near the house, and use this
+                build as the first real exploration milestone.
               </p>
+              <Link
+                href="/milestones"
+                className="pointer-events-auto mt-4 inline-flex items-center gap-3 rounded-full border border-amber-200/30 bg-amber-300/12 px-4 py-2 text-sm font-medium text-amber-100 transition hover:bg-amber-300/18"
+              >
+                <Image
+                  src="/assets/ui/banner-slots.png"
+                  alt=""
+                  width={28}
+                  height={28}
+                  className="h-7 w-7 object-contain"
+                />
+                Open milestone world log
+              </Link>
             </div>
           </div>
 
           <div className="rounded-[28px] border border-white/12 bg-black/35 p-4 backdrop-blur-md sm:p-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-2xl">
+              <div className="max-w-3xl">
                 <p className="text-xs uppercase tracking-[0.3em] text-stone-400">
                   Action Bar
                 </p>
-                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
                   {controls.map((control) => (
                     <div
                       key={control}
@@ -89,10 +90,16 @@ export default function Home() {
                 {["Sword", "Guard", "Potion", "Map"].map((slot, index) => (
                   <div
                     key={slot}
-                    className="flex h-16 w-16 items-end justify-between rounded-2xl border border-white/10 bg-white/8 p-2 text-[11px] uppercase tracking-[0.18em] text-stone-200"
+                    className="relative flex h-16 w-16 items-end justify-between overflow-hidden rounded-2xl border border-white/10 bg-white/8 p-2 text-[11px] uppercase tracking-[0.18em] text-stone-200"
                   >
-                    <span>{slot}</span>
-                    <span className="text-stone-400">{index + 1}</span>
+                    <Image
+                      src="/assets/ui/banner-slots.png"
+                      alt=""
+                      fill
+                      className="object-cover opacity-20"
+                    />
+                    <span className="relative">{slot}</span>
+                    <span className="relative text-stone-400">{index + 1}</span>
                   </div>
                 ))}
               </div>
@@ -101,5 +108,29 @@ export default function Home() {
         </div>
       </section>
     </main>
+  );
+}
+
+function HudBar({
+  label,
+  value,
+  width,
+  color,
+}: {
+  label: string;
+  value: string;
+  width: string;
+  color: string;
+}) {
+  return (
+    <div>
+      <div className="mb-1 flex items-center justify-between text-xs uppercase tracking-[0.2em] text-stone-300">
+        <span>{label}</span>
+        <span>{value}</span>
+      </div>
+      <div className="h-3 rounded-full bg-white/10">
+        <div className={`h-full rounded-full bg-gradient-to-r ${color}`} style={{ width }} />
+      </div>
+    </div>
   );
 }
