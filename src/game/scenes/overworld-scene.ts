@@ -1,5 +1,13 @@
 import * as Phaser from "phaser";
 
+import {
+  defaultGameProgress,
+  GAME_PROGRESS_STORAGE_KEY,
+  readGameProgress,
+  saveGameProgress,
+  type QuestStage,
+} from "@/lib/game-progress";
+
 const TERRAIN_TILE_SIZE = 96;
 const MAP_COLUMNS = 16;
 const MAP_ROWS = 12;
@@ -95,6 +103,8 @@ export class OverworldScene extends Phaser.Scene {
   private enemyAlive = true;
   private rewardCollected = false;
   private playerInvulnerableUntil = 0;
+  private questStage: QuestStage = defaultGameProgress.questStage;
+  private inventoryGold = defaultGameProgress.inventory.goldToken;
   private readonly enemySpawn = new Phaser.Math.Vector2(1180, 290);
 
   constructor() {
@@ -149,6 +159,7 @@ export class OverworldScene extends Phaser.Scene {
     this.createInput();
     this.createAnimations();
     this.createColliders();
+    this.restoreSavedProgress();
   }
 
   update(time: number) {
@@ -377,6 +388,45 @@ export class OverworldScene extends Phaser.Scene {
     this.dialoguePanel.setScrollFactor(0);
     this.dialoguePanel.setDepth(35);
     this.dialoguePanel.setVisible(false);
+  }
+
+  private restoreSavedProgress() {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const progress = readGameProgress(
+      window.localStorage.getItem(GAME_PROGRESS_STORAGE_KEY),
+    );
+
+    this.playerHealth = progress.playerHealth;
+    this.questStage = progress.questStage;
+    this.inventoryGold = progress.inventory.goldToken;
+
+    if (
+      progress.questStage === "scout_defeated" ||
+      progress.questStage === "reward_collected" ||
+      progress.questStage === "completed"
+    ) {
+      this.enemyAlive = false;
+      this.enemyHealth = 0;
+      this.enemy.disableBody(true, true);
+    }
+
+    if (progress.questStage === "scout_defeated") {
+      this.spawnReward();
+      this.hintText.setText("Scout defeated. Pick up the dropped gold and return to Brother Alden.");
+    }
+
+    if (progress.questStage === "reward_collected" || progress.questStage === "completed") {
+      this.rewardCollected = true;
+      this.reward.disableBody(true, true);
+      this.hintText.setText(
+        progress.questStage === "completed"
+          ? "Moonvale route secured. Brother Alden has recorded the first quest."
+          : "Recovered the scout's gold. Return to Brother Alden for the next route.",
+      );
+    }
   }
 
   private createInput() {
@@ -687,7 +737,9 @@ export class OverworldScene extends Phaser.Scene {
     if (this.enemyHealth <= 0) {
       this.enemyAlive = false;
       this.enemy.disableBody(true, true);
+      this.questStage = "scout_defeated";
       this.spawnReward();
+      this.syncProgress();
       this.hintText.setText("Scout defeated. Pick up the dropped gold and return to Brother Alden.");
       return;
     }
@@ -702,6 +754,7 @@ export class OverworldScene extends Phaser.Scene {
 
     this.playerInvulnerableUntil = this.time.now + 900;
     this.playerHealth = Math.max(0, this.playerHealth - 12);
+    this.syncProgress();
 
     const direction = this.player.x < this.enemy.x ? -1 : 1;
     this.player.setVelocity(-180 * direction, -40);
@@ -738,7 +791,10 @@ export class OverworldScene extends Phaser.Scene {
     }
 
     this.rewardCollected = true;
+    this.inventoryGold = 1;
+    this.questStage = "reward_collected";
     this.reward.disableBody(true, true);
+    this.syncProgress();
     this.hintText.setText("Recovered the scout's gold. Return to Brother Alden for the next route.");
   }
 
@@ -748,6 +804,10 @@ export class OverworldScene extends Phaser.Scene {
 
   private openDialogue() {
     const dialogue = this.getDialogueState();
+    if (this.questStage === "available") {
+      this.questStage = "accepted";
+      this.syncProgress();
+    }
     this.dialogueIndex = 0;
     this.dialogueLabel.setText(dialogue.label);
     this.dialogueText.setText(dialogue.lines[this.dialogueIndex]);
@@ -763,6 +823,10 @@ export class OverworldScene extends Phaser.Scene {
     if (this.dialogueIndex >= dialogue.lines.length) {
       this.dialogueOpen = false;
       this.dialoguePanel.setVisible(false);
+      if (this.rewardCollected) {
+        this.questStage = "completed";
+        this.syncProgress();
+      }
       this.hintText.setText(
         this.rewardCollected
           ? "Moonvale route secured. Next: enemy waves, pickups, and quest log updates."
@@ -792,6 +856,17 @@ export class OverworldScene extends Phaser.Scene {
           ? "Controller active. Defeat the red scout near the pond road."
           : "Brother Alden wants the red scout driven off. Press E / X to speak.",
       );
+    });
+  }
+
+  private syncProgress() {
+    saveGameProgress({
+      playerHealth: this.playerHealth,
+      stamina: defaultGameProgress.stamina,
+      questStage: this.questStage,
+      inventory: {
+        goldToken: this.inventoryGold,
+      },
     });
   }
 }

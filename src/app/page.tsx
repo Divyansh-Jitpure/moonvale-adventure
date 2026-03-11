@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { GameViewport } from "@/components/game-viewport";
+import { LiveQuestPanel } from "@/components/live-quest-panel";
 
 const controls = [
   "Move: WASD / Arrow keys / Left stick / D-pad",
@@ -35,27 +36,11 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="w-full max-w-sm rounded-[24px] border border-white/12 bg-black/35 p-4 backdrop-blur-md">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.25em] text-cyan-300/85">
-                    Current Quest
-                  </p>
-                  <h2 className="mt-2 text-lg font-semibold text-white">
-                    Clear the pond road scout
-                  </h2>
-                </div>
-                <span className="rounded-full border border-emerald-300/25 bg-emerald-400/12 px-3 py-1 text-xs uppercase tracking-[0.18em] text-emerald-200">
-                  Combat Live
-                </span>
-              </div>
-              <p className="mt-3 text-sm leading-6 text-stone-300">
-                Brother Alden has marked a red scout near the pond. Defeat it, grab
-                the drop, and return to the outpost to close the first combat loop.
-              </p>
+            <div className="pointer-events-auto flex w-full max-w-sm flex-col gap-3">
+              <LiveQuestPanel />
               <Link
                 href="/milestones"
-                className="pointer-events-auto mt-4 inline-flex items-center gap-3 rounded-full border border-amber-200/30 bg-amber-300/12 px-4 py-2 text-sm font-medium text-amber-100 transition hover:bg-amber-300/18"
+                className="inline-flex items-center gap-3 self-start rounded-full border border-amber-200/30 bg-amber-300/12 px-4 py-2 text-sm font-medium text-amber-100 transition hover:bg-amber-300/18"
               >
                 <Image
                   src="/assets/ui/banner-slots.png"
@@ -87,22 +72,9 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-4 gap-2 sm:w-auto">
-                {["Sword", "Talk", "Loot", "Map"].map((slot, index) => (
-                  <div
-                    key={slot}
-                    className="relative flex h-16 w-16 items-end justify-between overflow-hidden rounded-2xl border border-white/10 bg-white/8 p-2 text-[11px] uppercase tracking-[0.18em] text-stone-200"
-                  >
-                    <Image
-                      src="/assets/ui/banner-slots.png"
-                      alt=""
-                      fill
-                      className="object-cover opacity-20"
-                    />
-                    <span className="relative">{slot}</span>
-                    <span className="relative text-stone-400">{index + 1}</span>
-                  </div>
-                ))}
+              <div className="rounded-[20px] border border-white/10 bg-black/20 px-4 py-3 text-sm leading-6 text-stone-300 sm:max-w-sm">
+                The ledger and inventory now persist across reloads, so the outpost
+                route stays marked even after you leave the page.
               </div>
             </div>
           </div>

@@ -34,12 +34,22 @@ const milestones = [
   },
   {
     title: "Quest Ledger",
-    status: "Next",
-    summary: "Push combat state into a real quest tracker, add inventory, and show rewards in the HUD.",
+    status: "Complete",
+    summary: "Quest stage now persists, the gold reward enters inventory, and the HUD reads saved progress.",
     details: [
-      "Track quest acceptance, in-progress, and completed states instead of relying on scene text only.",
-      "Store the first gold pickup or token in a visible inventory slot.",
-      "Mirror completed milestones back into the world log with more reactive UI.",
+      "Persisted quest stage transitions through local storage so the route survives reloads.",
+      "Stored the gold token in inventory and surfaced it in the live HUD.",
+      "Hooked the shell UI into scene progress so the ledger reflects real game state instead of static copy.",
+    ],
+  },
+  {
+    title: "Second Route",
+    status: "Next",
+    summary: "Expand the grove with another encounter, a clearer map route, and multi-step quest progression.",
+    details: [
+      "Add a second hostile encounter or mini-wave to turn the grove into a route instead of one room.",
+      "Push quest state into the milestone page more deeply with route markers and completion rewards.",
+      "Start separating combat, quest, and inventory data into reusable systems.",
     ],
   },
 ];
@@ -86,7 +96,7 @@ export default function MilestonesPage() {
                 </Link>
                 <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-400/12 px-4 py-2 text-sm text-emerald-100">
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-300" />
-                  3 milestones complete
+                  4 milestones complete
                 </div>
               </div>
             </div>
@@ -102,7 +112,7 @@ export default function MilestonesPage() {
               <div className="grid grid-cols-3 gap-3">
                 <ProgressCard label="Core" value="Phaser + input" />
                 <ProgressCard label="World" value="Outpost live" />
-                <ProgressCard label="Next" value="Quest ledger" />
+                <ProgressCard label="Next" value="Second route" />
               </div>
             </div>
           </div>
