@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Moonvale Adventure
+
+Moonvale Adventure is a 2D fantasy adventure game prototype built with Next.js, TypeScript, and Phaser.
+
+The current vertical slice includes:
+- a playable overworld prototype
+- keyboard and controller support
+- melee combat encounters
+- NPC interaction and dialogue
+- quest progression across multiple routes
+- a milestone log themed around the game world
+
+## Tech Stack
+
+- Next.js
+- React
+- TypeScript
+- Phaser 3
+- Tailwind CSS
+
+## Current Game Slice
+
+The game currently follows the player through Moonvale Outpost and its early combat routes:
+- the pond road scout encounter
+- the northern stones archer encounter
+- persistent local quest and inventory state
+
+Progress is stored in browser `localStorage`, so quest and inventory data persist locally between sessions on the same machine.
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create a production build:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure
 
-## Learn More
+- `src/app` - Next.js app routes and UI shell
+- `src/components` - reusable UI components
+- `src/game` - Phaser bootstrap and game scenes
+- `src/lib` - shared game progress/state helpers
+- `public/assets` - game art and UI assets
 
-To learn more about Next.js, take a look at the following resources:
+## Notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Tiny Swords free-pack assets are used for the prototype art direction.
+- Controller support works through the browser Gamepad API.
+- Saved progress does not move with git unless exported separately.
