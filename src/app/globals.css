@@ -8,8 +8,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Segoe UI", "Trebuchet MS", sans-serif;
+  --font-mono: "Courier New", monospace;
 }
 
 * {
@@ -25,7 +25,7 @@ body {
   min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), sans-serif;
+  font-family: "Segoe UI", "Trebuchet MS", sans-serif;
 }
 
 a {

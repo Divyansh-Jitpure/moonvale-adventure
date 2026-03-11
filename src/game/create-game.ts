@@ -14,6 +14,9 @@ export function createGame(parent: HTMLDivElement) {
       width: 960,
       height: 600,
     },
+    input: {
+      gamepad: true,
+    },
     physics: {
       default: "arcade",
       arcade: {

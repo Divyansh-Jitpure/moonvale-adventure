@@ -28,10 +28,10 @@ export function GameViewport() {
   }, []);
 
   return (
-    <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[#09171c]">
+    <div className="h-full overflow-hidden rounded-[28px] border border-white/10 bg-[#09171c]">
       <div
         ref={hostRef}
-        className="aspect-[16/10] w-full"
+        className="h-full w-full"
         aria-label="Moonvale adventure game viewport"
       />
     </div>

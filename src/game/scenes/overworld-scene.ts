@@ -5,12 +5,14 @@ const WORLD_HEIGHT = 1200;
 const PLAYER_SPEED = 170;
 const SPRINT_MULTIPLIER = 1.45;
 const GAMEPAD_DEADZONE = 0.2;
+const WARRIOR_FRAME_SIZE = 192;
+const PLAYER_SCALE = 0.5;
 
 type InputState = {
   x: number;
   y: number;
   sprint: boolean;
-  pulse: boolean;
+  attack: boolean;
 };
 
 export class OverworldScene extends Phaser.Scene {
@@ -27,15 +29,27 @@ export class OverworldScene extends Phaser.Scene {
   private hintText!: Phaser.GameObjects.Text;
   private aura!: Phaser.GameObjects.Arc;
   private lastPulseAt = 0;
+  private lastGamepadAttackPressed = false;
+  private isAttacking = false;
+  private facing: "left" | "right" = "right";
+  private controllerConnected = false;
 
   constructor() {
     super("overworld");
   }
 
   preload() {
-    this.load.spritesheet("hero", "/hero-spritesheet.svg", {
-      frameWidth: 32,
-      frameHeight: 48,
+    this.load.spritesheet("warrior-idle", "/assets/units/warrior/warrior-idle.png", {
+      frameWidth: WARRIOR_FRAME_SIZE,
+      frameHeight: WARRIOR_FRAME_SIZE,
+    });
+    this.load.spritesheet("warrior-run", "/assets/units/warrior/warrior-run.png", {
+      frameWidth: WARRIOR_FRAME_SIZE,
+      frameHeight: WARRIOR_FRAME_SIZE,
+    });
+    this.load.spritesheet("warrior-attack", "/assets/units/warrior/warrior-attack-1.png", {
+      frameWidth: WARRIOR_FRAME_SIZE,
+      frameHeight: WARRIOR_FRAME_SIZE,
     });
   }
 
@@ -57,27 +71,19 @@ export class OverworldScene extends Phaser.Scene {
       movement.normalize();
     }
 
-    const speed = PLAYER_SPEED * (input.sprint ? SPRINT_MULTIPLIER : 1);
-    this.player.setVelocity(movement.x * speed, movement.y * speed);
-
-    if (movement.lengthSq() > 0.01) {
-      if (Math.abs(movement.x) > Math.abs(movement.y)) {
-        this.player.anims.play("hero-walk-side", true);
-        this.player.setFlipX(movement.x < 0);
-      } else if (movement.y < 0) {
-        this.player.anims.play("hero-walk-up", true);
-        this.player.setFlipX(false);
-      } else {
-        this.player.anims.play("hero-walk-down", true);
-        this.player.setFlipX(false);
-      }
-    } else {
-      this.player.anims.stop();
-      this.player.setFrame(0);
+    if (movement.x !== 0) {
+      this.facing = movement.x < 0 ? "left" : "right";
     }
 
-    if (input.pulse && time - this.lastPulseAt > 350) {
+    if (input.attack && !this.isAttacking && time - this.lastPulseAt > 350) {
       this.lastPulseAt = time;
+      this.isAttacking = true;
+      this.player.setVelocity(0, 0);
+      this.player.anims.play("warrior-attack", true);
+      this.player.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
+        this.isAttacking = false;
+      });
+
       this.tweens.add({
         targets: this.aura,
         alpha: { from: 0.55, to: 0 },
@@ -87,7 +93,19 @@ export class OverworldScene extends Phaser.Scene {
       });
     }
 
-    this.aura.setPosition(this.player.x, this.player.y + 18);
+    if (!this.isAttacking) {
+      const speed = PLAYER_SPEED * (input.sprint ? SPRINT_MULTIPLIER : 1);
+      this.player.setVelocity(movement.x * speed, movement.y * speed);
+
+      if (movement.lengthSq() > 0.01) {
+        this.player.anims.play("warrior-run", true);
+      } else {
+        this.player.anims.play("warrior-idle", true);
+      }
+    }
+
+    this.player.setFlipX(this.facing === "left");
+    this.aura.setPosition(this.player.x + (this.facing === "left" ? -16 : 16), this.player.y + 8);
   }
 
   private createEnvironment() {
@@ -135,12 +153,18 @@ export class OverworldScene extends Phaser.Scene {
   }
 
   private createPlayer() {
-    this.player = this.physics.add.sprite(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, "hero", 0);
+    this.player = this.physics.add.sprite(
+      WORLD_WIDTH / 2,
+      WORLD_HEIGHT / 2,
+      "warrior-idle",
+      0,
+    );
+    this.player.setScale(PLAYER_SCALE);
     this.player.setCollideWorldBounds(true);
-    this.player.setSize(26, 20).setOffset(3, 28);
+    this.player.setSize(42, 30).setOffset(75, 154);
 
     this.aura = this.add
-      .circle(this.player.x, this.player.y + 18, 14, 0xd8ff7a, 0.4)
+      .circle(this.player.x, this.player.y + 8, 16, 0xd8ff7a, 0.4)
       .setBlendMode(Phaser.BlendModes.ADD)
       .setAlpha(0);
 
@@ -154,9 +178,9 @@ export class OverworldScene extends Phaser.Scene {
     this.hintText = this.add.text(
       24,
       22,
-      "Explore the grove. Keyboard and controller are both active.",
+      "Explore the grove. Keyboard is active. Press any controller button to sync a gamepad.",
       {
-        fontFamily: "Arial",
+        fontFamily: "Segoe UI",
         fontSize: "18px",
         color: "#f7f2e8",
       },
@@ -176,13 +200,26 @@ export class OverworldScene extends Phaser.Scene {
       pulse: Phaser.Input.Keyboard.KeyCodes.SPACE,
     }) as OverworldScene["wasd"];
 
-    this.input.gamepad?.once("connected", (pad: Phaser.Input.Gamepad.Gamepad) => {
-      this.hintText.setText(`Controller connected: ${pad.id}`);
-      this.time.delayedCall(2400, () => {
-        this.hintText.setText(
-          "Explore the grove. Keyboard and controller are both active.",
-        );
-      });
+    this.input.gamepad?.on("connected", (pad: Phaser.Input.Gamepad.Gamepad) => {
+      this.controllerConnected = true;
+      this.showControllerMessage(`Controller connected: ${pad.id}`);
+    });
+
+    window.addEventListener("gamepadconnected", this.handleBrowserGamepadConnected);
+    window.addEventListener(
+      "gamepaddisconnected",
+      this.handleBrowserGamepadDisconnected,
+    );
+
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      window.removeEventListener(
+        "gamepadconnected",
+        this.handleBrowserGamepadConnected,
+      );
+      window.removeEventListener(
+        "gamepaddisconnected",
+        this.handleBrowserGamepadDisconnected,
+      );
     });
   }
 
@@ -197,55 +234,133 @@ export class OverworldScene extends Phaser.Scene {
     let gamepadX = 0;
     let gamepadY = 0;
     let gamepadSprint = false;
-    let gamepadPulse = false;
+    let gamepadAttack = false;
 
-    const pad = this.input.gamepad?.getPad(0);
+    const pad = this.getActiveGamepad();
     if (pad) {
-      const leftStickX = pad.axes.length > 0 ? pad.axes[0].getValue() : 0;
-      const leftStickY = pad.axes.length > 1 ? pad.axes[1].getValue() : 0;
-      const dpadX = Number(pad.right) - Number(pad.left);
-      const dpadY = Number(pad.down) - Number(pad.up);
+      const leftStickX = this.readAxisValue(pad, 0);
+      const leftStickY = this.readAxisValue(pad, 1);
+      const dpadX = Number(this.isPadPressed(pad, 15)) - Number(this.isPadPressed(pad, 14));
+      const dpadY = Number(this.isPadPressed(pad, 13)) - Number(this.isPadPressed(pad, 12));
 
       gamepadX =
         Math.abs(leftStickX) > GAMEPAD_DEADZONE ? leftStickX : dpadX;
       gamepadY =
         Math.abs(leftStickY) > GAMEPAD_DEADZONE ? leftStickY : dpadY;
-      gamepadSprint = pad.A;
-      gamepadPulse = pad.B;
+      gamepadSprint = this.isPadPressed(pad, 0);
+      gamepadAttack =
+        this.isPadPressed(pad, 1) && !this.lastGamepadAttackPressed;
+      this.lastGamepadAttackPressed = this.isPadPressed(pad, 1);
+      this.controllerConnected = true;
+    } else {
+      this.lastGamepadAttackPressed = false;
+      this.controllerConnected = false;
     }
 
     return {
       x: Phaser.Math.Clamp(keyboardX + gamepadX, -1, 1),
       y: Phaser.Math.Clamp(keyboardY + gamepadY, -1, 1),
       sprint: this.wasd.sprint.isDown || gamepadSprint,
-      pulse: Phaser.Input.Keyboard.JustDown(this.wasd.pulse) || gamepadPulse,
+      attack: Phaser.Input.Keyboard.JustDown(this.wasd.pulse) || gamepadAttack,
     };
   }
 
+  private getActiveGamepad() {
+    const phaserPad = this.input.gamepad?.getPad(0);
+    if (phaserPad) {
+      return phaserPad;
+    }
+
+    if (typeof navigator === "undefined" || !navigator.getGamepads) {
+      return null;
+    }
+
+    const browserPad = navigator
+      .getGamepads()
+      .find((pad): pad is Gamepad => pad !== null && pad.connected);
+
+    return browserPad ?? null;
+  }
+
+  private readAxisValue(
+    pad: Phaser.Input.Gamepad.Gamepad | Gamepad,
+    axisIndex: number,
+  ) {
+    if ("axes" in pad && pad.axes.length > axisIndex) {
+      const axis = pad.axes[axisIndex];
+      return typeof axis === "number" ? axis : axis.getValue();
+    }
+
+    return 0;
+  }
+
+  private isPadPressed(
+    pad: Phaser.Input.Gamepad.Gamepad | Gamepad,
+    buttonIndex: number,
+  ) {
+    if ("buttons" in pad && pad.buttons.length > buttonIndex) {
+      return pad.buttons[buttonIndex]?.pressed ?? false;
+    }
+
+    const phaserButtonMap: Record<number, boolean | undefined> = {
+      0: "A" in pad ? pad.A : undefined,
+      1: "B" in pad ? pad.B : undefined,
+      12: "up" in pad ? pad.up : undefined,
+      13: "down" in pad ? pad.down : undefined,
+      14: "left" in pad ? pad.left : undefined,
+      15: "right" in pad ? pad.right : undefined,
+    };
+
+    return phaserButtonMap[buttonIndex] ?? false;
+  }
+
+  private readonly handleBrowserGamepadConnected = (event: GamepadEvent) => {
+    this.controllerConnected = true;
+    this.showControllerMessage(`Controller connected: ${event.gamepad.id}`);
+  };
+
+  private readonly handleBrowserGamepadDisconnected = () => {
+    this.controllerConnected = false;
+    this.hintText.setText(
+      "Controller disconnected. Keyboard is still active.",
+    );
+  };
+
+  private showControllerMessage(message: string) {
+    this.hintText.setText(message);
+    this.time.delayedCall(2400, () => {
+      this.hintText.setText(
+        this.controllerConnected
+          ? "Controller active. Explore the grove or open the HUD for controls."
+          : "Explore the grove. Keyboard is active. Press any controller button to sync a gamepad.",
+      );
+    });
+  }
+
   private createAnimations() {
-    if (this.anims.exists("hero-walk-down")) {
+    if (this.anims.exists("warrior-idle")) {
       return;
     }
 
     this.anims.create({
-      key: "hero-walk-down",
-      frames: this.anims.generateFrameNumbers("hero", { start: 0, end: 2 }),
-      frameRate: 8,
+      key: "warrior-idle",
+      frames: this.anims.generateFrameNumbers("warrior-idle", { start: 0, end: 7 }),
+      frameRate: 10,
       repeat: -1,
     });
 
     this.anims.create({
-      key: "hero-walk-side",
-      frames: this.anims.generateFrameNumbers("hero", { start: 3, end: 5 }),
-      frameRate: 8,
+      key: "warrior-run",
+      frames: this.anims.generateFrameNumbers("warrior-run", { start: 0, end: 5 }),
+      frameRate: 12,
       repeat: -1,
     });
 
     this.anims.create({
-      key: "hero-walk-up",
-      frames: this.anims.generateFrameNumbers("hero", { start: 6, end: 8 }),
-      frameRate: 8,
-      repeat: -1,
+      key: "warrior-attack",
+      frames: this.anims.generateFrameNumbers("warrior-attack", { start: 0, end: 3 }),
+      frameRate: 14,
+      repeat: 0,
     });
   }
 }
