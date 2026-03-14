@@ -114,7 +114,7 @@ export class WiderGroveScene extends Phaser.Scene {
       this.syncProgress("wider_grove");
     }
 
-    this.hintText.setText(getHintForStage(this.questStage));
+    this.setHintText(getHintForStage(this.questStage));
   }
 
   update(time: number) {
@@ -274,7 +274,7 @@ export class WiderGroveScene extends Phaser.Scene {
     this.inputController = new OverworldInputController(
       this,
       (message) => this.showControllerMessage(message),
-      () => this.hintText.setText("Controller disconnected. Keyboard is still active."),
+      () => this.setHintText("Controller disconnected. Keyboard is still active."),
     );
     this.inputController.setup();
   }
@@ -410,7 +410,7 @@ export class WiderGroveScene extends Phaser.Scene {
       this.scout.disableBody(true, true);
       this.checkCompletion();
     } else {
-      this.hintText.setText(`Frontline scout staggered (${this.scoutHealth} left).`);
+      this.setHintText(`Frontline scout staggered (${this.scoutHealth} left).`);
     }
   }
 
@@ -424,19 +424,19 @@ export class WiderGroveScene extends Phaser.Scene {
       this.clearArrows();
       this.checkCompletion();
     } else {
-      this.hintText.setText(`Backline archer staggered (${this.archerHealth} left).`);
+      this.setHintText(`Backline archer staggered (${this.archerHealth} left).`);
     }
   }
 
   private checkCompletion() {
     if (this.scoutAlive || this.archerAlive) {
-      this.hintText.setText("One half of the pack is down. Finish the route.");
+      this.setHintText("One half of the pack is down. Finish the route.");
       return;
     }
 
     this.questStage = "wider_grove_completed";
     this.syncProgress("wider_grove");
-    this.hintText.setText("Wider grove secured. Return west to the outpost.");
+    this.setHintText("Wider grove secured. Return west to the outpost.");
   }
 
   private damagePlayer() {
@@ -452,7 +452,7 @@ export class WiderGroveScene extends Phaser.Scene {
       yoyo: true,
       repeat: 3,
     });
-    this.hintText.setText(`Warrior hit. Health ${this.playerHealth} / ${PLAYER_MAX_HEALTH}.`);
+    this.setHintText(`Warrior hit. Health ${this.playerHealth} / ${PLAYER_MAX_HEALTH}.`);
   }
 
   private leaveForOutpost() {
@@ -465,8 +465,13 @@ export class WiderGroveScene extends Phaser.Scene {
   }
 
   private showControllerMessage(message: string) {
+    this.setHintText(message);
+    this.time.delayedCall(2400, () => this.setHintText(getHintForStage(this.questStage)));
+  }
+
+  private setHintText(message: string) {
+    if (!this.sys.isActive() || !this.hintText?.scene) return;
     this.hintText.setText(message);
-    this.time.delayedCall(2400, () => this.hintText.setText(getHintForStage(this.questStage)));
   }
 
   private syncProgress(currentArea: "outpost" | "wider_grove") {

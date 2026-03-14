@@ -179,7 +179,7 @@ export class OverworldScene extends Phaser.Scene {
     if (p.questStage === "archer_defeated") this.spawnReward(this.sigil, this.archerSpawn.x, this.archerSpawn.y + 30, 1.3);
     if (shouldHideGoldReward(p.questStage)) this.gold.disableBody(true, true);
     if (shouldHideSigilReward(p.questStage)) this.sigil.disableBody(true, true);
-    this.hintText.setText(getHintForStage(this.questStage));
+    this.setHintText(getHintForStage(this.questStage));
   }
 
   private createInput() {
@@ -187,7 +187,7 @@ export class OverworldScene extends Phaser.Scene {
       this,
       (message) => this.showControllerMessage(message),
       () => {
-        this.hintText.setText("Controller disconnected. Keyboard is still active.");
+        this.setHintText("Controller disconnected. Keyboard is still active.");
       },
     );
     this.inputController.setup();
@@ -271,28 +271,28 @@ export class OverworldScene extends Phaser.Scene {
   private damageScout() {
     if (!this.scoutAlive) return;
     this.scoutHealth -= 1; this.scout.setVelocity(this.facing === "left" ? -220 : 220, -40); this.cameras.main.shake(120, 0.003);
-    if (this.scoutHealth <= 0) { this.scoutAlive = false; this.scout.disableBody(true, true); this.questStage = "scout_defeated"; this.spawnReward(this.gold, this.scoutSpawn.x + 18, this.scoutSpawn.y + 36, 0.36); this.syncProgress(); this.hintText.setText("Scout defeated. Pick up the gold token and return to Alden."); }
-    else this.hintText.setText(`Solid hit. Scout is reeling (${this.scoutHealth} left).`);
+    if (this.scoutHealth <= 0) { this.scoutAlive = false; this.scout.disableBody(true, true); this.questStage = "scout_defeated"; this.spawnReward(this.gold, this.scoutSpawn.x + 18, this.scoutSpawn.y + 36, 0.36); this.syncProgress(); this.setHintText("Scout defeated. Pick up the gold token and return to Alden."); }
+    else this.setHintText(`Solid hit. Scout is reeling (${this.scoutHealth} left).`);
   }
 
   private damageArcher() {
     if (!this.archerAlive) return;
     this.archerHealth -= 1; this.archer.setVelocity(this.facing === "left" ? -220 : 220, -40); this.cameras.main.shake(140, 0.004);
-    if (this.archerHealth <= 0) { this.archerAlive = false; this.archer.disableBody(true, true); this.clearArrows(); this.questStage = "archer_defeated"; this.spawnReward(this.sigil, this.archerSpawn.x, this.archerSpawn.y + 30, 1.3); this.syncProgress(); this.hintText.setText("Archer defeated. Recover the arrow sigil."); }
-    else this.hintText.setText(`The archer staggered (${this.archerHealth} left).`);
+    if (this.archerHealth <= 0) { this.archerAlive = false; this.archer.disableBody(true, true); this.clearArrows(); this.questStage = "archer_defeated"; this.spawnReward(this.sigil, this.archerSpawn.x, this.archerSpawn.y + 30, 1.3); this.syncProgress(); this.setHintText("Archer defeated. Recover the arrow sigil."); }
+    else this.setHintText(`The archer staggered (${this.archerHealth} left).`);
   }
 
   private damagePlayer() {
     if (this.time.now < this.invulnerableUntil) return;
     this.invulnerableUntil = this.time.now + 900; this.playerHealth = Math.max(0, this.playerHealth - 10); this.syncProgress(); this.cameras.main.shake(140, 0.004);
-    this.tweens.add({ targets: this.player, alpha: { from: 0.45, to: 1 }, duration: 120, yoyo: true, repeat: 3 }); this.hintText.setText(`Warrior hit. Health ${this.playerHealth} / ${PLAYER_MAX_HEALTH}.`);
+    this.tweens.add({ targets: this.player, alpha: { from: 0.45, to: 1 }, duration: 120, yoyo: true, repeat: 3 }); this.setHintText(`Warrior hit. Health ${this.playerHealth} / ${PLAYER_MAX_HEALTH}.`);
   }
 
   private spawnReward(sprite: Phaser.Physics.Arcade.Sprite, x: number, y: number, scale: number) {
     sprite.enableBody(true, x, y, true, true); sprite.setScale(scale).setVelocity(0, 0); this.tweens.killTweensOf(sprite); this.tweens.add({ targets: sprite, y: sprite.y - 8, duration: 700, yoyo: true, repeat: -1, ease: "Sine.InOut" });
   }
-  private collectGold() { if (this.goldCollected || !this.gold.active) return; this.goldCollected = true; this.inventoryGold = 1; this.questStage = "reward_collected"; this.gold.disableBody(true, true); this.syncProgress(); this.hintText.setText("Recovered the gold token. Return to Alden."); }
-  private collectSigil() { if (this.sigilCollected || !this.sigil.active) return; this.sigilCollected = true; this.inventorySigil = 1; this.questStage = "route_relic_collected"; this.sigil.disableBody(true, true); this.syncProgress(); this.hintText.setText("Arrow sigil secured. Return to Alden."); }
+  private collectGold() { if (this.goldCollected || !this.gold.active) return; this.goldCollected = true; this.inventoryGold = 1; this.questStage = "reward_collected"; this.gold.disableBody(true, true); this.syncProgress(); this.setHintText("Recovered the gold token. Return to Alden."); }
+  private collectSigil() { if (this.sigilCollected || !this.sigil.active) return; this.sigilCollected = true; this.inventorySigil = 1; this.questStage = "route_relic_collected"; this.sigil.disableBody(true, true); this.syncProgress(); this.setHintText("Arrow sigil secured. Return to Alden."); }
 
   private openDialogue() {
     const nextStage = getDialogueStartStage(this.questStage);
@@ -301,7 +301,7 @@ export class OverworldScene extends Phaser.Scene {
       if (nextStage === "second_route_active") this.activateArcher();
       this.syncProgress();
     }
-    const d = DIALOGUE[this.questStage]; this.dialogueIndex = 0; this.panelLabel.setText(d.label); this.panelText.setText(d.lines[0]); this.dialogueOpen = true; this.panel.setVisible(true); this.hintText.setText("Dialogue active. Press E / X to continue.");
+    const d = DIALOGUE[this.questStage]; this.dialogueIndex = 0; this.panelLabel.setText(d.label); this.panelText.setText(d.lines[0]); this.dialogueOpen = true; this.panel.setVisible(true); this.setHintText("Dialogue active. Press E / X to continue.");
   }
 
   private advanceDialogue() {
@@ -310,7 +310,7 @@ export class OverworldScene extends Phaser.Scene {
       this.dialogueOpen = false; this.panel.setVisible(false);
       const resolvedStage = getDialogueResolvedStage(this.questStage);
       if (resolvedStage !== this.questStage) { this.questStage = resolvedStage; this.syncProgress(); }
-      this.hintText.setText(getHintForStage(this.questStage)); return;
+      this.setHintText(getHintForStage(this.questStage)); return;
     }
     this.panelText.setText(d.lines[this.dialogueIndex]);
   }
@@ -321,7 +321,8 @@ export class OverworldScene extends Phaser.Scene {
   }
 
   private clearArrows() { this.arrows.getChildren().forEach((arrow) => (arrow as Phaser.Physics.Arcade.Sprite).destroy()); }
-  private showControllerMessage(message: string) { this.hintText.setText(message); this.time.delayedCall(2400, () => this.hintText.setText(this.inputController.isControllerConnected ? getHintForStage(this.questStage) : DEFAULT_HINT)); }
+  private showControllerMessage(message: string) { this.setHintText(message); this.time.delayedCall(2400, () => this.setHintText(this.inputController.isControllerConnected ? getHintForStage(this.questStage) : DEFAULT_HINT)); }
+  private setHintText(message: string) { if (!this.sys.isActive() || !this.hintText?.scene) return; this.hintText.setText(message); }
   private canEnterWiderGrove() { return this.questStage === "wider_grove_active" || this.questStage === "wider_grove_completed"; }
   private enterWiderGrove() { this.syncProgress("wider_grove"); this.scene.start("wider-grove"); }
   private syncProgress(currentArea: "outpost" | "wider_grove" = "outpost") { this.currentArea = currentArea; saveStoredProgress(buildStoredProgress({ playerHealth: this.playerHealth, questStage: this.questStage, currentArea: this.currentArea, inventoryGold: this.inventoryGold, inventorySigil: this.inventorySigil })); }

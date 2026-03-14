@@ -96,6 +96,19 @@ const ideas = [
   },
 ];
 
+const sidequests = [
+  {
+    title: "Controller And Stability Patch",
+    status: "Complete",
+    summary: "Smaller support work that fixed controller interaction rough edges and hardened scene hint updates during transitions.",
+    details: [
+      "Broadened the Xbox-style controller interaction mapping so talk prompts and route gates respond more reliably.",
+      "Fixed the outpost archer activation issue where the route could be live in the ledger while the enemy never actually appeared.",
+      "Guarded delayed controller hint updates so scene transitions stop stale callbacks from crashing the renderer.",
+    ],
+  },
+];
+
 export default function MilestonesPage() {
   return (
     <main className="min-h-screen overflow-hidden bg-[linear-gradient(180deg,_#102126_0%,_#091218_100%)] px-4 py-8 text-stone-100 sm:px-6">
@@ -254,6 +267,54 @@ export default function MilestonesPage() {
                   </div>
                 </div>
               </details>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-[32px] border border-white/10 bg-black/20 p-5 backdrop-blur-sm">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-emerald-300/80">
+                Sidequests
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-white">
+                Small fixes and field patches
+              </h2>
+            </div>
+            <div className="rounded-full border border-emerald-300/20 bg-emerald-400/12 px-4 py-2 text-sm text-emerald-100">
+              Support work outside the main route
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-4 lg:grid-cols-2">
+            {sidequests.map((sidequest) => (
+              <div
+                key={sidequest.title}
+                className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,_rgba(255,255,255,0.07),_rgba(255,255,255,0.03))] p-5"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.28em] text-emerald-300/75">
+                      Sidequest
+                    </p>
+                    <h3 className="mt-2 text-xl font-semibold text-white">{sidequest.title}</h3>
+                  </div>
+                  <span className="rounded-full border border-emerald-300/20 bg-emerald-400/12 px-3 py-1 text-xs uppercase tracking-[0.18em] text-emerald-100">
+                    {sidequest.status}
+                  </span>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-stone-300">{sidequest.summary}</p>
+                <div className="mt-4 space-y-3">
+                  {sidequest.details.map((detail) => (
+                    <div
+                      key={detail}
+                      className="rounded-2xl border border-white/8 bg-black/18 p-3 text-sm leading-6 text-stone-200"
+                    >
+                      {detail}
+                    </div>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </section>
