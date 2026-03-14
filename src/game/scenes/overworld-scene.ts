@@ -92,7 +92,7 @@ export class OverworldScene extends Phaser.Scene {
 
   create() {
     this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT); this.physics.world.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-    this.createGround(); this.createProps(); this.createPlayer(); this.createNpc(); this.createEnemies(); this.createRewards(); this.createUi(); this.createInput(); this.createAnimations(); this.createColliders(); this.restoreProgress();
+    this.createGround(); this.createProps(); this.createAnimations(); this.createPlayer(); this.createNpc(); this.createEnemies(); this.createRewards(); this.createUi(); this.createInput(); this.createColliders(); this.restoreProgress();
     startAmbientLoop(this, SOUND_KEYS.ambientOutpost, { volume: 0.1 });
   }
 

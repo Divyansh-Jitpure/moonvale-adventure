@@ -99,11 +99,11 @@ export class WiderGroveScene extends Phaser.Scene {
 
     this.createGround();
     this.createProps();
+    this.createAnimations();
     this.createPlayer();
     this.createEnemies();
     this.createUi();
     this.createInput();
-    this.createAnimations();
     this.createColliders();
     startAmbientLoop(this, SOUND_KEYS.ambientWiderGrove, { volume: 0.11 });
 
