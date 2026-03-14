@@ -73,6 +73,16 @@ const milestones = [
     ],
   },
   {
+    title: "Field Kit HUD",
+    status: "Complete",
+    summary: "Rebuilt the shell HUD into a readable edge overlay with live status, a cleaner route card, and a compact ledger dock that stops blocking the map.",
+    details: [
+      "Moved the always-visible interface into top-corner modules so the center of the screen stays open for traversal and combat.",
+      "Split detailed quest and inventory reading into a field ledger drawer while keeping health, stamina, and the active route live at a glance.",
+      "Used Tiny Swords UI accents and a darker shell treatment so the HUD feels grounded in Moonvale instead of reading like a web dashboard.",
+    ],
+  },
+  {
     title: "Frontier Threads",
     status: "Next",
     summary: "Push the quest system past one linear chain so new routes and scenes can branch without scene-specific scripting everywhere.",
@@ -105,6 +115,16 @@ const sidequests = [
       "Broadened the Xbox-style controller interaction mapping so talk prompts and route gates respond more reliably.",
       "Fixed the outpost archer activation issue where the route could be live in the ledger while the enemy never actually appeared.",
       "Guarded delayed controller hint updates so scene transitions stop stale callbacks from crashing the renderer.",
+    ],
+  },
+  {
+    title: "Field Kit Polish Pass",
+    status: "Complete",
+    summary: "Follow-up HUD work tightened the new field kit after the first art pass landed too noisy and fragile on top of the map.",
+    details: [
+      "Dropped the broken bottom action rail and oversized panel experiments that were making the interface feel cluttered instead of useful.",
+      "Retuned the top status and route cards with stronger contrast, smaller footprints, and a final Moonvale Warrior title that stays inside the shell.",
+      "Added cropped Tiny Swords UI assets into the repo so future HUD work can build from stable pieces instead of stretching source sheets directly.",
     ],
   },
 ];
@@ -151,7 +171,7 @@ export default function MilestonesPage() {
                 </Link>
                 <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-400/12 px-4 py-2 text-sm text-emerald-100">
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-300" />
-                  7 milestones complete
+                  8 milestones complete
                 </div>
               </div>
             </div>

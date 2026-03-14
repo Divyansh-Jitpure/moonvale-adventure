@@ -1,15 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
-
-import {
-  defaultGameProgress,
-  GAME_PROGRESS_EVENT,
-  GAME_PROGRESS_STORAGE_KEY,
-  readGameProgress,
-  type GameProgress,
-} from "@/lib/game-progress";
+import type { GameProgress } from "@/lib/game-progress";
+import { useGameProgress } from "@/components/use-game-progress";
 
 const stageLabel: Record<GameProgress["questStage"], string> = {
   available: "Talk to Brother Alden",
@@ -27,129 +20,197 @@ const stageLabel: Record<GameProgress["questStage"], string> = {
   wider_grove_completed: "Wider grove secured",
 };
 
-const stageTone: Record<GameProgress["questStage"], string> = {
-  available: "text-amber-100 border-amber-300/20 bg-amber-400/12",
-  accepted: "text-rose-100 border-rose-300/20 bg-rose-400/12",
-  scout_defeated: "text-cyan-100 border-cyan-300/20 bg-cyan-400/12",
-  reward_collected: "text-emerald-100 border-emerald-300/20 bg-emerald-400/12",
-  completed: "text-emerald-100 border-emerald-300/20 bg-emerald-400/12",
-  second_route_available: "text-cyan-100 border-cyan-300/20 bg-cyan-400/12",
-  second_route_active: "text-rose-100 border-rose-300/20 bg-rose-400/12",
-  archer_defeated: "text-cyan-100 border-cyan-300/20 bg-cyan-400/12",
-  route_relic_collected: "text-emerald-100 border-emerald-300/20 bg-emerald-400/12",
-  second_route_completed: "text-emerald-100 border-emerald-300/20 bg-emerald-400/12",
-  wider_grove_available: "text-cyan-100 border-cyan-300/20 bg-cyan-400/12",
-  wider_grove_active: "text-rose-100 border-rose-300/20 bg-rose-400/12",
-  wider_grove_completed: "text-emerald-100 border-emerald-300/20 bg-emerald-400/12",
+const stageSummary: Record<GameProgress["questStage"], string> = {
+  available: "Meet Alden and take the first patrol route.",
+  accepted: "The pond road scout is still active.",
+  scout_defeated: "Pick up the token before reporting back.",
+  reward_collected: "Return to Alden with proof of the clear.",
+  completed: "The first route is recorded in the ledger.",
+  second_route_available: "Alden can open the northern stones route.",
+  second_route_active: "A red archer is holding the northern stones.",
+  archer_defeated: "Recover the archer's sigil from the route.",
+  route_relic_collected: "Return with the sigil to close the route.",
+  second_route_completed: "Two combat routes are secured for Moonvale.",
+  wider_grove_available: "Alden can now open the eastern grove gate.",
+  wider_grove_active: "Break the mixed enemy pack in the wider grove.",
+  wider_grove_completed: "The wider grove route is cleared and recorded.",
 };
 
-export function LiveQuestPanel() {
-  const [progress, setProgress] = useState(defaultGameProgress);
+const stageTone: Record<GameProgress["questStage"], string> = {
+  available: "text-amber-100 border-amber-300/25 bg-amber-300/10",
+  accepted: "text-rose-100 border-rose-300/25 bg-rose-300/10",
+  scout_defeated: "text-cyan-100 border-cyan-300/25 bg-cyan-300/10",
+  reward_collected: "text-emerald-100 border-emerald-300/25 bg-emerald-300/10",
+  completed: "text-emerald-100 border-emerald-300/25 bg-emerald-300/10",
+  second_route_available: "text-cyan-100 border-cyan-300/25 bg-cyan-300/10",
+  second_route_active: "text-rose-100 border-rose-300/25 bg-rose-300/10",
+  archer_defeated: "text-cyan-100 border-cyan-300/25 bg-cyan-300/10",
+  route_relic_collected: "text-emerald-100 border-emerald-300/25 bg-emerald-300/10",
+  second_route_completed: "text-emerald-100 border-emerald-300/25 bg-emerald-300/10",
+  wider_grove_available: "text-cyan-100 border-cyan-300/25 bg-cyan-300/10",
+  wider_grove_active: "text-rose-100 border-rose-300/25 bg-rose-300/10",
+  wider_grove_completed: "text-emerald-100 border-emerald-300/25 bg-emerald-300/10",
+};
 
-  useEffect(() => {
-    const sync = () => {
-      setProgress(readGameProgress(window.localStorage.getItem(GAME_PROGRESS_STORAGE_KEY)));
-    };
-
-    const handleCustomEvent = (event: Event) => {
-      const customEvent = event as CustomEvent<GameProgress>;
-      if (customEvent.detail) {
-        setProgress(customEvent.detail);
-        return;
-      }
-      sync();
-    };
-
-    sync();
-    window.addEventListener(GAME_PROGRESS_EVENT, handleCustomEvent);
-    window.addEventListener("storage", sync);
-
-    return () => {
-      window.removeEventListener(GAME_PROGRESS_EVENT, handleCustomEvent);
-      window.removeEventListener("storage", sync);
-    };
-  }, []);
+export function CompactQuestPanel() {
+  const progress = useGameProgress();
 
   return (
-    <div className="grid gap-3">
-      <div className="w-full max-w-sm rounded-[24px] border border-white/12 bg-black/35 p-4 backdrop-blur-md">
-        <div className="flex items-center justify-between gap-3">
+    <div className="relative w-full max-w-[16rem] overflow-hidden rounded-[22px] border border-[#dcc48c]/35 bg-[#140f0a]/86 p-3 text-stone-100 shadow-[0_20px_48px_rgba(0,0,0,0.38)] backdrop-blur-sm">
+      <Image
+        src="/assets/ui/hud/special-paper-crop.png"
+        alt=""
+        fill
+        className="object-cover opacity-18"
+      />
+      <div className="relative">
+        <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-[0.25em] text-cyan-300/85">
-              Quest Ledger
+            <p className="text-[10px] uppercase tracking-[0.34em] text-amber-300/80">
+              Active Route
             </p>
-            <h2 className="mt-2 text-lg font-semibold text-white">
+            <h2 className="mt-1.5 text-[15px] font-semibold leading-tight text-[#fff8e7] sm:text-base">
               {stageLabel[progress.questStage]}
             </h2>
           </div>
           <span
-            className={`rounded-full border px-3 py-1 text-xs uppercase tracking-[0.18em] ${stageTone[progress.questStage]}`}
+            className={`rounded-full border px-2.5 py-1 text-[9px] uppercase tracking-[0.18em] ${stageTone[progress.questStage]}`}
           >
             {progress.questStage.replaceAll("_", " ")}
           </span>
         </div>
-        <p className="mt-3 text-sm leading-6 text-stone-300">
-          {progress.questStage === "available" && "Meet Brother Alden and accept the first route through the grove."}
-          {progress.questStage === "accepted" && "The scout is still active near the pond road. Defeat it to advance the ledger."}
-          {progress.questStage === "scout_defeated" && "The scout is down. Pick up the dropped gold to prove the route is clear."}
-          {progress.questStage === "reward_collected" && "The gold token is secured. Return to Brother Alden to close the quest."}
-          {progress.questStage === "completed" && "The first combat route is complete and recorded in the Moonvale ledger."}
-          {progress.questStage === "second_route_available" && "Brother Alden has opened the northern route. Speak to him to begin the second expedition."}
-          {progress.questStage === "second_route_active" && "A red archer is holding the northern stones. Defeat it to continue."}
-          {progress.questStage === "archer_defeated" && "The archer is down. Recover its sigil from the route."}
-          {progress.questStage === "route_relic_collected" && "The sigil is secured. Return to Brother Alden to lock in the second route."}
-          {progress.questStage === "second_route_completed" && "Two combat routes are now recorded in the Moonvale ledger."}
-          {progress.questStage === "wider_grove_available" && "Brother Alden can now open the eastern gate into the wider grove. Speak again to begin the new route."}
-          {progress.questStage === "wider_grove_active" && "The wider grove is live. Break the mixed enemy pack holding the eastern ridge."}
-          {progress.questStage === "wider_grove_completed" && "The wider grove encounter is cleared and the larger route is now secured for Moonvale."}
-        </p>
-      </div>
 
-      <div className="w-full max-w-sm rounded-[24px] border border-white/12 bg-black/35 p-4 backdrop-blur-md">
-        <p className="text-xs uppercase tracking-[0.25em] text-cyan-300/85">
-          Inventory
+        <p className="mt-2.5 max-w-[14rem] text-xs leading-5 text-stone-300">
+          {stageSummary[progress.questStage]}
         </p>
-        <div className="mt-4 grid grid-cols-4 gap-2">
-          {["Sword", "Gold", "Sigil", "Map"].map((slot, index) => {
-            const filledGold = slot === "Gold" && progress.inventory.goldToken > 0;
-            const filledSigil = slot === "Sigil" && progress.inventory.arrowSigil > 0;
 
-            return (
-              <div
-                key={slot}
-                className="relative flex h-16 items-end justify-between overflow-hidden rounded-2xl border border-white/10 bg-white/8 p-2 text-[11px] uppercase tracking-[0.18em] text-stone-200"
-              >
-                <Image
-                  src="/assets/ui/banner-slots.png"
-                  alt=""
-                  fill
-                  className="object-cover opacity-20"
-                />
-                {filledGold ? (
-                  <Image
-                    src="/assets/rewards/gold-resource.png"
-                    alt="Gold token"
-                    width={28}
-                    height={28}
-                    className="relative h-7 w-7 object-contain"
-                  />
-                ) : filledSigil ? (
-                  <Image
-                    src="/assets/rewards/arrow-sigil.png"
-                    alt="Arrow sigil"
-                    width={28}
-                    height={28}
-                    className="relative h-7 w-7 object-contain"
-                  />
-                ) : (
-                  <span className="relative">{slot}</span>
-                )}
-                <span className="relative text-stone-400">{index + 1}</span>
-              </div>
-            );
-          })}
+        <div className="mt-3 flex flex-wrap gap-1.5 text-[10px] uppercase tracking-[0.14em] text-stone-300">
+          <SummaryChip label="Health" value={`${progress.playerHealth}`} />
+          <SummaryChip label="Area" value={progress.currentArea.replaceAll("_", " ")} />
+          <SummaryChip
+            label="Relics"
+            value={`${progress.inventory.goldToken + progress.inventory.arrowSigil}/2`}
+          />
         </div>
       </div>
+    </div>
+  );
+}
+
+export function LiveQuestPanel() {
+  const progress = useGameProgress();
+
+  return (
+    <div className="grid gap-4">
+      <section className="relative overflow-hidden rounded-[28px] border border-[#dcc48c]/28 bg-[#16110b]/92 p-4 text-stone-100">
+        <Image
+          src="/assets/ui/hud/special-paper-crop.png"
+          alt=""
+          fill
+          className="object-cover opacity-18"
+        />
+        <div className="relative">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.32em] text-cyan-300/80">
+                Quest Ledger
+              </p>
+              <h2 className="mt-2 text-xl font-semibold text-[#fff8e7]">
+                {stageLabel[progress.questStage]}
+              </h2>
+            </div>
+            <span
+              className={`rounded-full border px-3 py-1 text-[10px] uppercase tracking-[0.2em] ${stageTone[progress.questStage]}`}
+            >
+              {progress.questStage.replaceAll("_", " ")}
+            </span>
+          </div>
+
+          <p className="mt-4 text-sm leading-7 text-stone-300">
+            {stageSummary[progress.questStage]}
+          </p>
+
+          <div className="mt-4 grid gap-2 sm:grid-cols-3">
+            <LedgerMetric label="Health" value={`${progress.playerHealth} / 100`} />
+            <LedgerMetric label="Stamina" value={`${progress.stamina} / 100`} />
+            <LedgerMetric
+              label="Current Area"
+              value={progress.currentArea.replaceAll("_", " ")}
+            />
+          </div>
+        </div>
+      </section>
+
+      <section className="relative overflow-hidden rounded-[28px] border border-[#dcc48c]/28 bg-[#16110b]/92 p-4 text-stone-100">
+        <Image
+          src="/assets/ui/hud/wood-table-crop.png"
+          alt=""
+          fill
+          className="object-cover opacity-16"
+        />
+        <div className="relative">
+          <p className="text-[10px] uppercase tracking-[0.32em] text-cyan-300/80">
+            Inventory
+          </p>
+          <div className="mt-4 grid grid-cols-4 gap-2">
+            {["Sword", "Gold", "Sigil", "Map"].map((slot, index) => {
+              const filledGold = slot === "Gold" && progress.inventory.goldToken > 0;
+              const filledSigil = slot === "Sigil" && progress.inventory.arrowSigil > 0;
+
+              return (
+                <div
+                  key={slot}
+                  className="relative flex h-18 items-end justify-between overflow-hidden rounded-[20px] border border-[#d7bf8c]/18 bg-black/22 p-2 text-[11px] uppercase tracking-[0.18em] text-stone-200"
+                >
+                  <Image
+                    src="/assets/ui/hud/wood-slot-crop.png"
+                    alt=""
+                    fill
+                    className="object-cover opacity-16"
+                  />
+                  {filledGold ? (
+                    <Image
+                      src="/assets/rewards/gold-resource.png"
+                      alt="Gold token"
+                      width={28}
+                      height={28}
+                      className="relative h-7 w-7 object-contain"
+                    />
+                  ) : filledSigil ? (
+                    <Image
+                      src="/assets/rewards/arrow-sigil.png"
+                      alt="Arrow sigil"
+                      width={28}
+                      height={28}
+                      className="relative h-7 w-7 object-contain"
+                    />
+                  ) : (
+                    <span className="relative">{slot}</span>
+                  )}
+                  <span className="relative text-stone-500">{index + 1}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function SummaryChip({ label, value }: { label: string; value: string }) {
+  return (
+    <span className="rounded-full border border-[#dcc48c]/22 bg-black/24 px-2.5 py-1 text-stone-200">
+      {label}: <span className="text-[#fff3c5]">{value}</span>
+    </span>
+  );
+}
+
+function LedgerMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[18px] border border-[#d7bf8c]/18 bg-black/22 p-3">
+      <p className="text-[10px] uppercase tracking-[0.24em] text-stone-400">{label}</p>
+      <p className="mt-2 text-sm font-medium text-stone-100">{value}</p>
     </div>
   );
 }

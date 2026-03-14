@@ -49,7 +49,9 @@ export function readGameProgress(raw?: string | null): GameProgress {
     const parsed = JSON.parse(raw) as Partial<GameProgress>;
 
     return {
-      playerHealth: parsed.playerHealth ?? defaultGameProgress.playerHealth,
+      playerHealth: clampPlayerHealth(
+        parsed.playerHealth ?? defaultGameProgress.playerHealth,
+      ),
       stamina: parsed.stamina ?? defaultGameProgress.stamina,
       questStage: parsed.questStage ?? defaultGameProgress.questStage,
       currentArea: parsed.currentArea ?? defaultGameProgress.currentArea,
@@ -73,4 +75,8 @@ export function saveGameProgress(progress: GameProgress) {
   const serialized = JSON.stringify(progress);
   window.localStorage.setItem(GAME_PROGRESS_STORAGE_KEY, serialized);
   window.dispatchEvent(new CustomEvent(GAME_PROGRESS_EVENT, { detail: progress }));
+}
+
+function clampPlayerHealth(value: number) {
+  return Math.min(100, Math.max(10, value));
 }

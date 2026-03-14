@@ -442,7 +442,7 @@ export class WiderGroveScene extends Phaser.Scene {
   private damagePlayer() {
     if (this.time.now < this.invulnerableUntil) return;
     this.invulnerableUntil = this.time.now + 900;
-    this.playerHealth = Math.max(0, this.playerHealth - 10);
+    this.playerHealth = Math.max(10, this.playerHealth - 10);
     this.syncProgress("wider_grove");
     this.cameras.main.shake(140, 0.004);
     this.tweens.add({

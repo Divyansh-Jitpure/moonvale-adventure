@@ -28,7 +28,7 @@ export function GameViewport() {
   }, []);
 
   return (
-    <div className="h-full overflow-hidden rounded-[28px] border border-white/10 bg-[#09171c]">
+    <div className="h-full overflow-hidden rounded-[18px] border border-white/6 bg-[#09171c] shadow-[0_10px_30px_rgba(0,0,0,0.2)]">
       <div
         ref={hostRef}
         className="h-full w-full"
