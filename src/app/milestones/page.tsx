@@ -84,6 +84,18 @@ const milestones = [
   },
 ];
 
+const ideas = [
+  {
+    title: "Procedural Map Generation",
+    summary: "Explore constrained procedural generation for future Moonvale routes instead of treating every new zone as a fully hand-laid scene.",
+    details: [
+      "Generate route layouts from authored chunks so Moonvale keeps a deliberate shape instead of turning into pure randomness.",
+      "Use procedural placement for props, choke points, and encounter groups after the quest structure is more reusable.",
+      "Keep milestone-critical spaces and major quest beats authored so pacing and world tone stay under control.",
+    ],
+  },
+];
+
 export default function MilestonesPage() {
   return (
     <main className="min-h-screen overflow-hidden bg-[linear-gradient(180deg,_#102126_0%,_#091218_100%)] px-4 py-8 text-stone-100 sm:px-6">
@@ -242,6 +254,47 @@ export default function MilestonesPage() {
                   </div>
                 </div>
               </details>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-[32px] border border-white/10 bg-black/20 p-5 backdrop-blur-sm">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-cyan-300/80">
+                Ideas Shelf
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-white">
+                Things worth thinking on later
+              </h2>
+            </div>
+            <div className="rounded-full border border-cyan-300/20 bg-cyan-400/12 px-4 py-2 text-sm text-cyan-100">
+              Not committed milestones
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-4 lg:grid-cols-2">
+            {ideas.map((idea) => (
+              <div
+                key={idea.title}
+                className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,_rgba(255,255,255,0.07),_rgba(255,255,255,0.03))] p-5"
+              >
+                <p className="text-xs uppercase tracking-[0.28em] text-cyan-300/75">
+                  Idea
+                </p>
+                <h3 className="mt-2 text-xl font-semibold text-white">{idea.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-stone-300">{idea.summary}</p>
+                <div className="mt-4 space-y-3">
+                  {idea.details.map((detail) => (
+                    <div
+                      key={detail}
+                      className="rounded-2xl border border-white/8 bg-black/18 p-3 text-sm leading-6 text-stone-200"
+                    >
+                      {detail}
+                    </div>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </section>
