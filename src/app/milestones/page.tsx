@@ -64,12 +64,22 @@ const milestones = [
   },
   {
     title: "Wider Grove",
-    status: "Next",
-    summary: "Turn the outpost into a larger zone with more paths, denser encounters, and better world structure.",
+    status: "Complete",
+    summary: "Expanded Moonvale into a second playable area with a persistent transition and a mixed enemy pack guarding the eastern route.",
     details: [
-      "Build another area or map chunk instead of stretching one scene further.",
-      "Introduce enemy combinations and a more deliberate route between them.",
-      "Separate quest and combat systems enough that new routes do not require scene rewrites.",
+      "Added a wider eastern grove as a second playable space instead of stretching the outpost into one oversized scene.",
+      "Hooked progression into a real area transition so reloads preserve whether the player is in the outpost or the grove.",
+      "Built a mixed encounter with a frontline scout and backline archer so route pressure comes from enemy combination, not one target at a time.",
+    ],
+  },
+  {
+    title: "Frontier Threads",
+    status: "Next",
+    summary: "Push the quest system past one linear chain so new routes and scenes can branch without scene-specific scripting everywhere.",
+    details: [
+      "Move more route objectives into reusable quest data instead of embedding each beat directly in scene flow.",
+      "Add another frontier destination or route branch that reuses the new area-transition structure.",
+      "Strengthen reward and quest feedback so each new route has clearer stakes than a simple clear-and-return loop.",
     ],
   },
 ];
@@ -116,7 +126,7 @@ export default function MilestonesPage() {
                 </Link>
                 <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-400/12 px-4 py-2 text-sm text-emerald-100">
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-300" />
-                  6 milestones complete
+                  7 milestones complete
                 </div>
               </div>
             </div>
@@ -131,8 +141,8 @@ export default function MilestonesPage() {
               />
               <div className="grid grid-cols-3 gap-3">
                 <ProgressCard label="Core" value="Phaser + input" />
-                <ProgressCard label="World" value="Outpost live" />
-                <ProgressCard label="Next" value="Wider grove" />
+                <ProgressCard label="World" value="Outpost + grove" />
+                <ProgressCard label="Next" value="Frontier threads" />
               </div>
             </div>
           </div>

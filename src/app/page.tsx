@@ -32,7 +32,7 @@ export default function Home() {
               <div className="mt-4 space-y-3">
                 <HudBar label="Health" value="100 / 100" width="100%" color="from-rose-500 to-orange-300" />
                 <HudBar label="Stamina" value="72 / 100" width="72%" color="from-emerald-500 to-lime-300" />
-                <HudBar label="Threat" value="Two hostile routes" width="64%" color="from-amber-500 to-yellow-300" />
+                <HudBar label="Threat" value="Three hostile routes" width="78%" color="from-amber-500 to-yellow-300" />
               </div>
             </div>
 
@@ -74,7 +74,7 @@ export default function Home() {
 
               <div className="rounded-[20px] border border-white/10 bg-black/20 px-4 py-3 text-sm leading-6 text-stone-300 sm:max-w-sm">
                 The ledger, rewards, and route unlocks now persist across reloads, so
-                Moonvale keeps both combat routes recorded after you leave the page.
+                Moonvale keeps the outpost routes and the wider grove recorded after you leave the page.
               </div>
             </div>
           </div>

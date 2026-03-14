@@ -1,6 +1,8 @@
 import * as Phaser from "phaser";
 
+import { BootScene } from "@/game/scenes/boot-scene";
 import { OverworldScene } from "@/game/scenes/overworld-scene";
+import { WiderGroveScene } from "@/game/scenes/wider-grove-scene";
 
 export function createGame(parent: HTMLDivElement) {
   return new Phaser.Game({
@@ -24,6 +26,6 @@ export function createGame(parent: HTMLDivElement) {
         debug: false,
       },
     },
-    scene: [OverworldScene],
+    scene: [BootScene, OverworldScene, WiderGroveScene],
   });
 }

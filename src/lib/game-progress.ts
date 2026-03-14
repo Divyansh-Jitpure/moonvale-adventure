@@ -8,12 +8,18 @@ export type QuestStage =
   | "second_route_active"
   | "archer_defeated"
   | "route_relic_collected"
-  | "second_route_completed";
+  | "second_route_completed"
+  | "wider_grove_available"
+  | "wider_grove_active"
+  | "wider_grove_completed";
+
+export type GameArea = "outpost" | "wider_grove";
 
 export type GameProgress = {
   playerHealth: number;
   stamina: number;
   questStage: QuestStage;
+  currentArea: GameArea;
   inventory: {
     goldToken: number;
     arrowSigil: number;
@@ -27,6 +33,7 @@ export const defaultGameProgress: GameProgress = {
   playerHealth: 100,
   stamina: 72,
   questStage: "available",
+  currentArea: "outpost",
   inventory: {
     goldToken: 0,
     arrowSigil: 0,
@@ -45,6 +52,7 @@ export function readGameProgress(raw?: string | null): GameProgress {
       playerHealth: parsed.playerHealth ?? defaultGameProgress.playerHealth,
       stamina: parsed.stamina ?? defaultGameProgress.stamina,
       questStage: parsed.questStage ?? defaultGameProgress.questStage,
+      currentArea: parsed.currentArea ?? defaultGameProgress.currentArea,
       inventory: {
         goldToken:
           parsed.inventory?.goldToken ?? defaultGameProgress.inventory.goldToken,

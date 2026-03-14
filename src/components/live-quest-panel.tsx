@@ -22,6 +22,9 @@ const stageLabel: Record<GameProgress["questStage"], string> = {
   archer_defeated: "Collect the arrow sigil",
   route_relic_collected: "Return with the sigil",
   second_route_completed: "Second route secured",
+  wider_grove_available: "Open the wider grove",
+  wider_grove_active: "Clear the eastern pack",
+  wider_grove_completed: "Wider grove secured",
 };
 
 const stageTone: Record<GameProgress["questStage"], string> = {
@@ -35,6 +38,9 @@ const stageTone: Record<GameProgress["questStage"], string> = {
   archer_defeated: "text-cyan-100 border-cyan-300/20 bg-cyan-400/12",
   route_relic_collected: "text-emerald-100 border-emerald-300/20 bg-emerald-400/12",
   second_route_completed: "text-emerald-100 border-emerald-300/20 bg-emerald-400/12",
+  wider_grove_available: "text-cyan-100 border-cyan-300/20 bg-cyan-400/12",
+  wider_grove_active: "text-rose-100 border-rose-300/20 bg-rose-400/12",
+  wider_grove_completed: "text-emerald-100 border-emerald-300/20 bg-emerald-400/12",
 };
 
 export function LiveQuestPanel() {
@@ -93,6 +99,9 @@ export function LiveQuestPanel() {
           {progress.questStage === "archer_defeated" && "The archer is down. Recover its sigil from the route."}
           {progress.questStage === "route_relic_collected" && "The sigil is secured. Return to Brother Alden to lock in the second route."}
           {progress.questStage === "second_route_completed" && "Two combat routes are now recorded in the Moonvale ledger."}
+          {progress.questStage === "wider_grove_available" && "Brother Alden can now open the eastern gate into the wider grove. Speak again to begin the new route."}
+          {progress.questStage === "wider_grove_active" && "The wider grove is live. Break the mixed enemy pack holding the eastern ridge."}
+          {progress.questStage === "wider_grove_completed" && "The wider grove encounter is cleared and the larger route is now secured for Moonvale."}
         </p>
       </div>
 

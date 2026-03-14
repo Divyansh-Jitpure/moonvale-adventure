@@ -35,6 +35,7 @@ import {
   getDialogueStartStage,
   getHintForStage,
   hasArcherRoute,
+  hasWiderGroveRoute,
   isScoutResolved,
   readStoredProgress,
   saveStoredProgress,
@@ -48,6 +49,7 @@ export class OverworldScene extends Phaser.Scene {
   private player!: Phaser.Physics.Arcade.Sprite; private npc!: Phaser.Physics.Arcade.Sprite;
   private scout!: Phaser.Physics.Arcade.Sprite; private archer!: Phaser.Physics.Arcade.Sprite;
   private gold!: Phaser.Physics.Arcade.Sprite; private sigil!: Phaser.Physics.Arcade.Sprite;
+  private groveGate!: Phaser.GameObjects.Rectangle;
   private arrows!: Phaser.Physics.Arcade.Group; private attackZone!: Phaser.GameObjects.Zone;
   private props!: Phaser.Physics.Arcade.StaticGroup; private inputController!: OverworldInputController;
   private hintText!: Phaser.GameObjects.Text; private promptText!: Phaser.GameObjects.Text; private routeText!: Phaser.GameObjects.Text;
@@ -55,11 +57,17 @@ export class OverworldScene extends Phaser.Scene {
   private lastAttackAt = 0; private lastShotAt = 0;
   private isAttacking = false; private attackActive = false; private hitThisSwing = false; private facing: "left" | "right" = "right";
   private dialogueOpen = false; private dialogueIndex = 0; private playerHealth = PLAYER_MAX_HEALTH; private scoutHealth = SCOUT_MAX_HEALTH; private archerHealth = ARCHER_MAX_HEALTH;
-  private scoutAlive = true; private archerAlive = false; private goldCollected = false; private sigilCollected = false; private invulnerableUntil = 0;
+  private scoutAlive = true; private archerAlive = true; private goldCollected = false; private sigilCollected = false; private invulnerableUntil = 0;
   private questStage: QuestStage = defaultGameProgress.questStage; private inventoryGold = defaultGameProgress.inventory.goldToken; private inventorySigil = defaultGameProgress.inventory.arrowSigil;
+  private currentArea: "outpost" | "wider_grove" = "outpost";
+  private spawnPoint: "default" | "groveGate" = "default";
   private readonly scoutSpawn = new Phaser.Math.Vector2(1180, 290); private readonly archerSpawn = new Phaser.Math.Vector2(330, 250);
 
   constructor() { super("overworld"); }
+
+  init(data?: { spawn?: "default" | "groveGate" }) {
+    this.spawnPoint = data?.spawn ?? "default";
+  }
 
   preload() {
     this.load.image("terrain-tiles", "/assets/terrain/tileset/tilemap-color1.png");
@@ -87,6 +95,7 @@ export class OverworldScene extends Phaser.Scene {
   update(time: number) {
     const input = this.inputController.readInput(); const movement = new Phaser.Math.Vector2(input.x, input.y);
     const nearNpc = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npc.x, this.npc.y) < TALK_DISTANCE;
+    const nearGroveGate = Phaser.Math.Distance.Between(this.player.x, this.player.y, 1440, 742) < TALK_DISTANCE;
     if (movement.lengthSq() > 1) movement.normalize();
     if (movement.x !== 0) this.facing = movement.x < 0 ? "left" : "right";
     if (this.dialogueOpen) {
@@ -94,6 +103,7 @@ export class OverworldScene extends Phaser.Scene {
       if (input.interact) this.advanceDialogue();
     } else {
       if (input.interact && nearNpc) this.openDialogue();
+      if (input.interact && nearGroveGate && this.canEnterWiderGrove()) this.enterWiderGrove();
       if (input.attack && !this.isAttacking && time - this.lastAttackAt > 350) this.triggerAttack(time);
       if (!this.isAttacking) {
         const speed = PLAYER_SPEED * (input.sprint ? SPRINT_MULTIPLIER : 1);
@@ -101,7 +111,7 @@ export class OverworldScene extends Phaser.Scene {
         this.player.anims.play(movement.lengthSq() > 0.01 ? "warrior-run" : "warrior-idle", true);
       }
     }
-    this.updateScout(); this.updateArcher(time); this.updateAttackZone(); this.updateUi(nearNpc);
+    this.updateScout(); this.updateArcher(time); this.updateAttackZone(); this.updateUi(nearNpc, nearGroveGate);
     if (this.attackActive) {
       if (this.scoutAlive) this.physics.overlap(this.attackZone, this.scout, () => { if (!this.hitThisSwing) { this.hitThisSwing = true; this.damageScout(); } });
       if (this.archerAlive) this.physics.overlap(this.attackZone, this.archer, () => { if (!this.hitThisSwing) { this.hitThisSwing = true; this.damageArcher(); } });
@@ -110,9 +120,10 @@ export class OverworldScene extends Phaser.Scene {
 
   private createGround() {
     const map = this.make.tilemap({ data: MAP_DATA, tileWidth: TILE_SIZE, tileHeight: TILE_SIZE }); const tiles = map.addTilesetImage("terrain-tiles"); map.createLayer(0, tiles!, 0, 0);
-    const path = this.add.graphics(); path.fillStyle(0xb28f62, 0.96); path.fillRoundedRect(180, 680, 1180, 128, 38); path.fillRoundedRect(900, 310, 120, 428, 32); path.fillRoundedRect(240, 190, 700, 90, 34); path.lineStyle(6, 0xcfb18c, 0.45); path.strokeRoundedRect(180, 680, 1180, 128, 38); path.strokeRoundedRect(900, 310, 120, 428, 32); path.strokeRoundedRect(240, 190, 700, 90, 34);
+    const path = this.add.graphics(); path.fillStyle(0xb28f62, 0.96); path.fillRoundedRect(180, 680, 1290, 128, 38); path.fillRoundedRect(900, 310, 120, 428, 32); path.fillRoundedRect(240, 190, 700, 90, 34); path.lineStyle(6, 0xcfb18c, 0.45); path.strokeRoundedRect(180, 680, 1290, 128, 38); path.strokeRoundedRect(900, 310, 120, 428, 32); path.strokeRoundedRect(240, 190, 700, 90, 34);
     const pond = this.add.ellipse(1230, 290, 280, 180, 0x327aa2, 1); pond.setStrokeStyle(6, 0xa7ebff, 0.35); this.add.image(1230, 290, "water-foam").setScale(0.48).setAlpha(0.72);
     const mist = this.add.graphics(); mist.fillGradientStyle(0xffffff, 0xffffff, 0x8fe0ff, 0x8fe0ff, 0.04); mist.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    this.groveGate = this.add.rectangle(1450, 744, 30, 150, 0x8cccb6, 0.24).setStrokeStyle(2, 0xd8f9ed, 0.45);
   }
 
   private createProps() {
@@ -128,6 +139,7 @@ export class OverworldScene extends Phaser.Scene {
     this.attackZone = this.add.zone(this.player.x, this.player.y, 72, 56); this.physics.add.existing(this.attackZone); const body = this.attackZone.body as Phaser.Physics.Arcade.Body; body.setAllowGravity(false); body.setImmovable(true); body.enable = false;
     this.aura = this.add.circle(this.player.x, this.player.y + 8, 16, 0xd8ff7a, 0.4).setBlendMode(Phaser.BlendModes.ADD).setAlpha(0);
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08); this.cameras.main.setZoom(1.25);
+    if (this.spawnPoint === "groveGate") this.player.setPosition(1340, 742);
   }
 
   private createNpc() {
@@ -159,7 +171,7 @@ export class OverworldScene extends Phaser.Scene {
   private restoreProgress() {
     if (typeof window === "undefined") return;
     const p = readStoredProgress(window.localStorage);
-    this.playerHealth = p.playerHealth; this.questStage = p.questStage; this.inventoryGold = p.inventory.goldToken; this.inventorySigil = p.inventory.arrowSigil; this.goldCollected = this.inventoryGold > 0; this.sigilCollected = this.inventorySigil > 0;
+    this.currentArea = p.currentArea; this.playerHealth = p.playerHealth; this.questStage = p.questStage; this.inventoryGold = p.inventory.goldToken; this.inventorySigil = p.inventory.arrowSigil; this.goldCollected = this.inventoryGold > 0; this.sigilCollected = this.inventorySigil > 0;
     if (isScoutResolved(p.questStage)) { this.scoutAlive = false; this.scoutHealth = 0; this.scout.disableBody(true, true); }
     if (p.questStage === "scout_defeated") this.spawnReward(this.gold, this.scoutSpawn.x + 18, this.scoutSpawn.y + 36, 0.36);
     if (shouldActivateArcher(p.questStage)) this.activateArcher();
@@ -238,9 +250,22 @@ export class OverworldScene extends Phaser.Scene {
     const dir = this.facing === "left" ? -1 : 1; this.attackZone.setPosition(this.player.x + 44 * dir, this.player.y + 4); this.player.setFlipX(this.facing === "left"); this.aura.setPosition(this.player.x + 16 * dir, this.player.y + 8);
   }
 
-  private updateUi(nearNpc: boolean) {
-    this.promptText.setVisible(nearNpc && !this.dialogueOpen); this.promptText.setPosition(this.npc.x, this.npc.y - 74);
-    const scout = this.scoutAlive ? `Scout ${this.scoutHealth}/${SCOUT_MAX_HEALTH}` : "Scout clear"; const archerRoute = hasArcherRoute(this.questStage); const archer = archerRoute ? (this.archerAlive ? `Archer ${this.archerHealth}/${ARCHER_MAX_HEALTH}` : "Archer clear") : "Archer locked"; this.routeText.setText(`Routes: ${scout} | ${archer}`);
+  private updateUi(nearNpc: boolean, nearGroveGate: boolean) {
+    this.promptText.setVisible((nearNpc || (nearGroveGate && this.canEnterWiderGrove())) && !this.dialogueOpen);
+    this.promptText.setPosition(
+      nearGroveGate && this.canEnterWiderGrove() ? 1395 : this.npc.x,
+      nearGroveGate && this.canEnterWiderGrove() ? 660 : this.npc.y - 74,
+    );
+    this.promptText.setText(nearGroveGate && this.canEnterWiderGrove() ? "Press E / X to enter Wider Grove" : "Press E / X to speak");
+    const scout = this.scoutAlive ? `Scout ${this.scoutHealth}/${SCOUT_MAX_HEALTH}` : "Scout clear";
+    const archerRoute = hasArcherRoute(this.questStage);
+    const archer = archerRoute ? (this.archerAlive ? `Archer ${this.archerHealth}/${ARCHER_MAX_HEALTH}` : "Archer clear") : "Archer locked";
+    const grove = hasWiderGroveRoute(this.questStage)
+      ? this.questStage === "wider_grove_completed"
+        ? "Grove clear"
+        : "Grove open"
+      : "Grove locked";
+    this.routeText.setText(`Routes: ${scout} | ${archer} | ${grove}`);
   }
 
   private damageScout() {
@@ -297,5 +322,7 @@ export class OverworldScene extends Phaser.Scene {
 
   private clearArrows() { this.arrows.getChildren().forEach((arrow) => (arrow as Phaser.Physics.Arcade.Sprite).destroy()); }
   private showControllerMessage(message: string) { this.hintText.setText(message); this.time.delayedCall(2400, () => this.hintText.setText(this.inputController.isControllerConnected ? getHintForStage(this.questStage) : DEFAULT_HINT)); }
-  private syncProgress() { saveStoredProgress(buildStoredProgress({ playerHealth: this.playerHealth, questStage: this.questStage, inventoryGold: this.inventoryGold, inventorySigil: this.inventorySigil })); }
+  private canEnterWiderGrove() { return this.questStage === "wider_grove_active" || this.questStage === "wider_grove_completed"; }
+  private enterWiderGrove() { this.syncProgress("wider_grove"); this.scene.start("wider-grove"); }
+  private syncProgress(currentArea: "outpost" | "wider_grove" = "outpost") { this.currentArea = currentArea; saveStoredProgress(buildStoredProgress({ playerHealth: this.playerHealth, questStage: this.questStage, currentArea: this.currentArea, inventoryGold: this.inventoryGold, inventorySigil: this.inventorySigil })); }
 }

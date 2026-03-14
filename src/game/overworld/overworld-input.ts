@@ -12,6 +12,9 @@ type KeySet = {
   interact: Phaser.Input.Keyboard.Key;
 };
 
+const ATTACK_BUTTONS = [1];
+const INTERACT_BUTTONS = [2, 3];
+
 export class OverworldInputController {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private keys!: KeySet;
@@ -68,8 +71,8 @@ export class OverworldInputController {
         Number(this.isPadPressed(pad, 15)) - Number(this.isPadPressed(pad, 14));
       const dPadY =
         Number(this.isPadPressed(pad, 13)) - Number(this.isPadPressed(pad, 12));
-      const attackPressed = this.isPadPressed(pad, 1);
-      const interactPressed = this.isPadPressed(pad, 2);
+      const attackPressed = this.isAnyPadButtonPressed(pad, ATTACK_BUTTONS);
+      const interactPressed = this.isAnyPadButtonPressed(pad, INTERACT_BUTTONS);
 
       gamepadX = Math.abs(leftX) > GAMEPAD_DEADZONE ? leftX : dPadX;
       gamepadY = Math.abs(leftY) > GAMEPAD_DEADZONE ? leftY : dPadY;
@@ -136,6 +139,13 @@ export class OverworldInputController {
     };
 
     return map[index] ?? false;
+  }
+
+  private isAnyPadButtonPressed(
+    pad: Phaser.Input.Gamepad.Gamepad | Gamepad,
+    indices: number[],
+  ) {
+    return indices.some((index) => this.isPadPressed(pad, index));
   }
 
   private readonly handlePhaserGamepadConnected = (

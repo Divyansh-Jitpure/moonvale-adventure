@@ -3,6 +3,7 @@ import {
   GAME_PROGRESS_STORAGE_KEY,
   readGameProgress,
   saveGameProgress,
+  type GameArea,
   type GameProgress,
   type QuestStage,
 } from "@/lib/game-progress";
@@ -19,6 +20,9 @@ const SCOUT_RESOLVED_STAGES: QuestStage[] = [
   "archer_defeated",
   "route_relic_collected",
   "second_route_completed",
+  "wider_grove_available",
+  "wider_grove_active",
+  "wider_grove_completed",
 ];
 
 const ARCHER_ROUTE_STAGES: QuestStage[] = [
@@ -27,6 +31,15 @@ const ARCHER_ROUTE_STAGES: QuestStage[] = [
   "archer_defeated",
   "route_relic_collected",
   "second_route_completed",
+  "wider_grove_available",
+  "wider_grove_active",
+  "wider_grove_completed",
+];
+
+const WIDER_GROVE_STAGES: QuestStage[] = [
+  "wider_grove_available",
+  "wider_grove_active",
+  "wider_grove_completed",
 ];
 
 const ARCHER_ACTIVE_STAGES: QuestStage[] = [
@@ -34,6 +47,9 @@ const ARCHER_ACTIVE_STAGES: QuestStage[] = [
   "archer_defeated",
   "route_relic_collected",
   "second_route_completed",
+  "wider_grove_available",
+  "wider_grove_active",
+  "wider_grove_completed",
 ];
 
 const ARCHER_CLEARED_STAGES: QuestStage[] = [
@@ -68,6 +84,7 @@ export function saveStoredProgress(progress: GameProgress) {
 export function buildStoredProgress(input: {
   playerHealth: number;
   questStage: QuestStage;
+  currentArea: GameArea;
   inventoryGold: number;
   inventorySigil: number;
 }): GameProgress {
@@ -75,6 +92,7 @@ export function buildStoredProgress(input: {
     playerHealth: input.playerHealth,
     stamina: defaultGameProgress.stamina,
     questStage: input.questStage,
+    currentArea: input.currentArea,
     inventory: {
       goldToken: input.inventoryGold,
       arrowSigil: input.inventorySigil,
@@ -106,6 +124,10 @@ export function shouldHideSigilReward(stage: QuestStage) {
   return SIGIL_HIDDEN_STAGES.includes(stage);
 }
 
+export function hasWiderGroveRoute(stage: QuestStage) {
+  return WIDER_GROVE_STAGES.includes(stage);
+}
+
 export function getDialogueStartStage(stage: QuestStage): QuestStage {
   switch (stage) {
     case "available":
@@ -114,6 +136,10 @@ export function getDialogueStartStage(stage: QuestStage): QuestStage {
       return "second_route_available";
     case "second_route_available":
       return "second_route_active";
+    case "second_route_completed":
+      return "wider_grove_available";
+    case "wider_grove_available":
+      return "wider_grove_active";
     default:
       return stage;
   }
@@ -150,7 +176,13 @@ export function getHintForStage(stage: QuestStage) {
     case "route_relic_collected":
       return "Sigil secured. Return to Alden to close the route.";
     case "second_route_completed":
-      return "Two routes secured. Moonvale is ready for a larger grove.";
+      return "Two routes secured. Speak to Alden to open the wider grove.";
+    case "wider_grove_available":
+      return "The eastern grove gate is open. Travel out and clear the deeper route.";
+    case "wider_grove_active":
+      return "Wider grove live. Break the enemy pack and secure the eastern path.";
+    case "wider_grove_completed":
+      return "Wider grove secured. Moonvale now holds a larger frontier.";
     default:
       return "Moonvale route ledger active.";
   }

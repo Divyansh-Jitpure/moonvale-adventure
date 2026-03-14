@@ -85,7 +85,19 @@ export const DIALOGUE: Record<QuestStage, DialogueState> = {
   },
   second_route_completed: {
     label: "Brother Alden",
-    lines: ["Two routes secured.", "Next comes a deeper grove and more threats."],
+    lines: ["Two routes secured.", "The eastern grove is wider and meaner. I can open it if you are ready."],
+  },
+  wider_grove_available: {
+    label: "Brother Alden",
+    lines: ["The eastern gate is open now.", "Cross into the wider grove and break the enemy pack holding the ridge."],
+  },
+  wider_grove_active: {
+    label: "Brother Alden",
+    lines: ["You will not find a lone target there.", "A scout presses close while an archer cuts the lane behind it."],
+  },
+  wider_grove_completed: {
+    label: "Brother Alden",
+    lines: ["The wider grove route is ours.", "Moonvale can finally breathe beyond the outpost walls."],
   },
 };
 

@@ -23,6 +23,8 @@ The current vertical slice includes:
 The game currently follows the player through Moonvale Outpost and its early combat routes:
 - the pond road scout encounter
 - the northern stones archer encounter
+- the wider grove mixed scout-and-archer encounter
+- persistent area transitions between the outpost and the eastern grove
 - persistent local quest and inventory state
 
 Progress is stored in browser `localStorage`, so quest and inventory data persist locally between sessions on the same machine.
