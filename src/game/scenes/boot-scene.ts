@@ -13,6 +13,12 @@ export class BootScene extends Phaser.Scene {
         ? defaultGameProgress
         : readGameProgress(window.localStorage.getItem(GAME_PROGRESS_STORAGE_KEY));
 
-    this.scene.start(progress.currentArea === "wider_grove" ? "wider-grove" : "overworld");
+    this.scene.start(
+      progress.currentArea === "wider_grove"
+        ? "wider-grove"
+        : progress.currentArea === "watch_hollow"
+          ? "watch-hollow"
+          : "overworld",
+    );
   }
 }

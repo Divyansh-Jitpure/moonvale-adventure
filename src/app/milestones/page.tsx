@@ -84,12 +84,22 @@ const milestones = [
   },
   {
     title: "Frontier Threads",
-    status: "Next",
-    summary: "Push the quest system past one linear chain so new routes and scenes can branch without scene-specific scripting everywhere.",
+    status: "Complete",
+    summary: "Moved quest copy and stage behavior into shared route definitions, then proved it with a new Watch Hollow branch off the outpost.",
     details: [
-      "Move more route objectives into reusable quest data instead of embedding each beat directly in scene flow.",
-      "Add another frontier destination or route branch that reuses the new area-transition structure.",
-      "Strengthen reward and quest feedback so each new route has clearer stakes than a simple clear-and-return loop.",
+      "Centralized stage titles, summaries, hints, dialogue, and transition data so the HUD, outpost scene, and route helpers all read from one quest source.",
+      "Added Watch Hollow as a western branch that opens after the wider grove and reuses the same area-transition structure instead of adding another one-off scene path.",
+      "Let the outpost route map track four frontier states at once, proving Moonvale can now branch without every new step being buried in scene-specific conditionals.",
+    ],
+  },
+  {
+    title: "Sounding Steel",
+    status: "Next",
+    summary: "Add the first combat and world sound layer so Moonvale stops feeling silent while the route structure continues to grow.",
+    details: [
+      "Add sword swings, hits, pickups, and route-clear cues to make combat feedback land harder.",
+      "Introduce ambient scene layers so the outpost, grove, and hollow feel distinct even when the art set is shared.",
+      "Make the audio system easy to extend so each future frontier route can declare its own sound palette without scene copy-paste.",
     ],
   },
 ];
@@ -171,7 +181,7 @@ export default function MilestonesPage() {
                 </Link>
                 <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-400/12 px-4 py-2 text-sm text-emerald-100">
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-300" />
-                  8 milestones complete
+                  9 milestones complete
                 </div>
               </div>
             </div>
@@ -187,7 +197,7 @@ export default function MilestonesPage() {
               <div className="grid grid-cols-3 gap-3">
                 <ProgressCard label="Core" value="Phaser + input" />
                 <ProgressCard label="World" value="Outpost + grove" />
-                <ProgressCard label="Next" value="Frontier threads" />
+                <ProgressCard label="Next" value="Sounding steel" />
               </div>
             </div>
           </div>

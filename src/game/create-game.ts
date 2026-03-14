@@ -2,6 +2,7 @@ import * as Phaser from "phaser";
 
 import { BootScene } from "@/game/scenes/boot-scene";
 import { OverworldScene } from "@/game/scenes/overworld-scene";
+import { WatchHollowScene } from "@/game/scenes/watch-hollow-scene";
 import { WiderGroveScene } from "@/game/scenes/wider-grove-scene";
 
 export function createGame(parent: HTMLDivElement) {
@@ -26,6 +27,6 @@ export function createGame(parent: HTMLDivElement) {
         debug: false,
       },
     },
-    scene: [BootScene, OverworldScene, WiderGroveScene],
+    scene: [BootScene, OverworldScene, WiderGroveScene, WatchHollowScene],
   });
 }

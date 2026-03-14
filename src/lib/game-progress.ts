@@ -11,9 +11,12 @@ export type QuestStage =
   | "second_route_completed"
   | "wider_grove_available"
   | "wider_grove_active"
-  | "wider_grove_completed";
+  | "wider_grove_completed"
+  | "watch_hollow_available"
+  | "watch_hollow_active"
+  | "watch_hollow_completed";
 
-export type GameArea = "outpost" | "wider_grove";
+export type GameArea = "outpost" | "wider_grove" | "watch_hollow";
 
 export type GameProgress = {
   playerHealth: number;

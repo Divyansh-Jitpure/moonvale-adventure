@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 
 import { useGameProgress } from "@/components/use-game-progress";
 import type { GameProgress } from "@/lib/game-progress";
+import { getQuestStageDetails } from "@/lib/quest-data";
 
 export function FieldHud() {
   const progress = useGameProgress();
@@ -67,6 +68,8 @@ function StatusModule({ progress }: { progress: ReturnType<typeof useGameProgres
 }
 
 function ObjectiveModule({ progress }: { progress: ReturnType<typeof useGameProgress> }) {
+  const stage = getQuestStageDetails(progress.questStage);
+
   return (
     <div className="pointer-events-auto w-[296px] rounded-[20px] border border-[#efd089]/24 bg-[linear-gradient(180deg,rgba(31,24,15,0.95),rgba(21,16,10,0.92))] p-3.5 shadow-[0_18px_40px_rgba(0,0,0,0.44)] backdrop-blur-sm">
       <div className="flex items-start justify-between gap-3">
@@ -78,14 +81,14 @@ function ObjectiveModule({ progress }: { progress: ReturnType<typeof useGameProg
             </p>
           </div>
           <h2 className="mt-2 text-[24px] font-semibold leading-[0.96] text-[#fff1cd]">
-            {getStageLabel(progress.questStage)}
+            {stage.title}
           </h2>
         </div>
-        <StageTag>{getStageTag(progress.questStage)}</StageTag>
+        <StageTag>{stage.tag}</StageTag>
       </div>
 
       <p className="mt-2.5 max-w-[14rem] text-[13px] leading-[1.35] text-[#dcc79a]">
-        {getStageSummary(progress.questStage)}
+        {stage.shortSummary}
       </p>
     </div>
   );
@@ -154,7 +157,9 @@ function StageTag({ children }: { children: ReactNode }) {
 }
 
 function getAreaLabel(area: GameProgress["currentArea"]) {
-  return area === "wider_grove" ? "Wider Grove" : "Outpost";
+  if (area === "wider_grove") return "Wider Grove";
+  if (area === "watch_hollow") return "Watch Hollow";
+  return "Outpost";
 }
 
 function getThreatLabel(stage: GameProgress["questStage"]) {
@@ -167,95 +172,13 @@ function getThreatLabel(stage: GameProgress["questStage"]) {
       return "Medium";
     case "wider_grove_available":
     case "wider_grove_active":
+    case "watch_hollow_available":
+    case "watch_hollow_active":
       return "High";
     case "wider_grove_completed":
+    case "watch_hollow_completed":
       return "Clear";
     default:
       return "Watch";
-  }
-}
-
-function getStageTag(stage: GameProgress["questStage"]) {
-  switch (stage) {
-    case "scout_defeated":
-    case "archer_defeated":
-    case "reward_collected":
-    case "route_relic_collected":
-      return "Recover";
-    case "completed":
-    case "second_route_completed":
-    case "wider_grove_completed":
-      return "Secure";
-    case "wider_grove_available":
-    case "second_route_available":
-      return "Brief";
-    default:
-      return "Active";
-  }
-}
-
-function getStageLabel(stage: GameProgress["questStage"]) {
-  switch (stage) {
-    case "available":
-      return "Speak with Brother Alden";
-    case "accepted":
-      return "Defeat the pond road scout";
-    case "scout_defeated":
-      return "Collect the gold token";
-    case "reward_collected":
-      return "Return to Brother Alden";
-    case "completed":
-      return "First route secured";
-    case "second_route_available":
-      return "Open the northern stones";
-    case "second_route_active":
-      return "Defeat the red archer";
-    case "archer_defeated":
-      return "Collect the arrow sigil";
-    case "route_relic_collected":
-      return "Return with the sigil";
-    case "second_route_completed":
-      return "Second route secured";
-    case "wider_grove_available":
-      return "Open the wider grove";
-    case "wider_grove_active":
-      return "Clear the eastern pack";
-    case "wider_grove_completed":
-      return "Wider grove secured";
-    default:
-      return "Route recorded";
-  }
-}
-
-function getStageSummary(stage: GameProgress["questStage"]) {
-  switch (stage) {
-    case "available":
-      return "Take Alden's patrol brief.";
-    case "accepted":
-      return "The scout is still on the pond road.";
-    case "scout_defeated":
-      return "Pick up the proof before reporting back.";
-    case "reward_collected":
-      return "Bring the token back to the chapel.";
-    case "completed":
-      return "Moonvale has one safe route again.";
-    case "second_route_available":
-      return "Alden can unlock the northern stones path.";
-    case "second_route_active":
-      return "The archer still controls the stones.";
-    case "archer_defeated":
-      return "Take the sigil left on the route.";
-    case "route_relic_collected":
-      return "Return the sigil to close the route.";
-    case "second_route_completed":
-      return "Two routes now answer to Moonvale.";
-    case "wider_grove_available":
-      return "The grove gate can be opened now.";
-    case "wider_grove_active":
-      return "Break the scout and archer pack.";
-    case "wider_grove_completed":
-      return "The frontier route is recorded and quiet.";
-    default:
-      return "The ledger is waiting for the next route.";
   }
 }
