@@ -51,7 +51,7 @@ export function readGameProgress(raw?: string | null): GameProgress {
   try {
     const parsed = JSON.parse(raw) as Partial<GameProgress>;
 
-    return {
+    return normalizeProgress({
       playerHealth: clampPlayerHealth(
         parsed.playerHealth ?? defaultGameProgress.playerHealth,
       ),
@@ -64,7 +64,7 @@ export function readGameProgress(raw?: string | null): GameProgress {
         arrowSigil:
           parsed.inventory?.arrowSigil ?? defaultGameProgress.inventory.arrowSigil,
       },
-    };
+    });
   } catch {
     return defaultGameProgress;
   }
@@ -82,4 +82,21 @@ export function saveGameProgress(progress: GameProgress) {
 
 function clampPlayerHealth(value: number) {
   return Math.min(100, Math.max(10, value));
+}
+
+function normalizeProgress(progress: GameProgress): GameProgress {
+  let questStage = progress.questStage;
+
+  if (progress.inventory.goldToken > 0 && questStage === "scout_defeated") {
+    questStage = "reward_collected";
+  }
+
+  if (progress.inventory.arrowSigil > 0 && questStage === "archer_defeated") {
+    questStage = "route_relic_collected";
+  }
+
+  return {
+    ...progress,
+    questStage,
+  };
 }

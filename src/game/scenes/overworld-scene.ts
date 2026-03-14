@@ -1,5 +1,6 @@
 import * as Phaser from "phaser";
 import { defaultGameProgress, type GameArea, type QuestStage } from "@/lib/game-progress";
+import { playSfx, preloadGameAudio, SOUND_KEYS, startAmbientLoop } from "@/game/audio/game-audio";
 import {
   AGGRO_DISTANCE,
   ANIMATION_CONFIGS,
@@ -71,6 +72,7 @@ export class OverworldScene extends Phaser.Scene {
   }
 
   preload() {
+    preloadGameAudio(this);
     this.load.image("terrain-tiles", "/assets/terrain/tileset/tilemap-color1.png");
     this.load.image("water-foam", "/assets/terrain/tileset/water-foam.png");
     this.load.image("tree-1", "/assets/terrain/resources/tree-1.png");
@@ -91,6 +93,7 @@ export class OverworldScene extends Phaser.Scene {
   create() {
     this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT); this.physics.world.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
     this.createGround(); this.createProps(); this.createPlayer(); this.createNpc(); this.createEnemies(); this.createRewards(); this.createUi(); this.createInput(); this.createAnimations(); this.createColliders(); this.restoreProgress();
+    startAmbientLoop(this, SOUND_KEYS.ambientOutpost, { volume: 0.1 });
   }
 
   update(time: number) {
@@ -114,7 +117,7 @@ export class OverworldScene extends Phaser.Scene {
         this.player.anims.play(movement.lengthSq() > 0.01 ? "warrior-run" : "warrior-idle", true);
       }
     }
-    this.updateScout(); this.updateArcher(time); this.updateAttackZone(); this.updateUi(nearNpc, nearGroveGate, nearWatchGate);
+    this.updateScout(); this.updateArcher(time); this.updateAttackZone(); this.updateUi(nearNpc, nearGroveGate, nearWatchGate); this.tryRewardPickup();
     if (this.attackActive) {
       if (this.scoutAlive) this.physics.overlap(this.attackZone, this.scout, () => { if (!this.hitThisSwing) { this.hitThisSwing = true; this.damageScout(); } });
       if (this.archerAlive) this.physics.overlap(this.attackZone, this.archer, () => { if (!this.hitThisSwing) { this.hitThisSwing = true; this.damageArcher(); } });
@@ -159,8 +162,8 @@ export class OverworldScene extends Phaser.Scene {
   }
 
   private createRewards() {
-    this.gold = this.physics.add.sprite(this.scoutSpawn.x + 18, this.scoutSpawn.y + 48, "gold-resource"); (this.gold.body as Phaser.Physics.Arcade.Body).setAllowGravity(false); this.gold.setScale(0.36); this.gold.disableBody(true, true);
-    this.sigil = this.physics.add.sprite(this.archerSpawn.x, this.archerSpawn.y + 44, "arrow-sigil"); (this.sigil.body as Phaser.Physics.Arcade.Body).setAllowGravity(false); this.sigil.setScale(1.3); this.sigil.disableBody(true, true);
+    this.gold = this.physics.add.sprite(this.scoutSpawn.x + 18, this.scoutSpawn.y + 48, "gold-resource"); (this.gold.body as Phaser.Physics.Arcade.Body).setAllowGravity(false); this.gold.setScale(0.36); this.gold.setCircle(28, 12, 12); this.gold.disableBody(true, true);
+    this.sigil = this.physics.add.sprite(this.archerSpawn.x, this.archerSpawn.y + 44, "arrow-sigil"); (this.sigil.body as Phaser.Physics.Arcade.Body).setAllowGravity(false); this.sigil.setScale(1.3); this.sigil.setCircle(22, 6, 6); this.sigil.disableBody(true, true);
   }
 
   private createUi() {
@@ -223,7 +226,7 @@ export class OverworldScene extends Phaser.Scene {
   }
 
   private triggerAttack(time: number) {
-    this.lastAttackAt = time; this.isAttacking = true; this.hitThisSwing = false; this.player.setVelocity(0, 0); this.player.anims.play("warrior-attack", true); this.player.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => { this.isAttacking = false; });
+    this.lastAttackAt = time; this.isAttacking = true; this.hitThisSwing = false; this.player.setVelocity(0, 0); this.player.anims.play("warrior-attack", true); this.player.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => { this.isAttacking = false; }); playSfx(this, SOUND_KEYS.swing, { rate: 1.05 });
     this.time.delayedCall(90, () => { this.attackActive = true; (this.attackZone.body as Phaser.Physics.Arcade.Body).enable = true; });
     this.time.delayedCall(210, () => { this.attackActive = false; (this.attackZone.body as Phaser.Physics.Arcade.Body).enable = false; });
     this.tweens.add({ targets: this.aura, alpha: { from: 0.55, to: 0 }, scale: { from: 1, to: 2.1 }, duration: 280, ease: "Quad.Out" });
@@ -286,14 +289,14 @@ export class OverworldScene extends Phaser.Scene {
 
   private damageScout() {
     if (!this.scoutAlive) return;
-    this.scoutHealth -= 1; this.scout.setVelocity(this.facing === "left" ? -220 : 220, -40); this.cameras.main.shake(120, 0.003);
+    this.scoutHealth -= 1; this.scout.setVelocity(this.facing === "left" ? -220 : 220, -40); this.cameras.main.shake(120, 0.003); playSfx(this, SOUND_KEYS.enemyHit, { rate: 1.08 });
     if (this.scoutHealth <= 0) { this.scoutAlive = false; this.scout.disableBody(true, true); this.questStage = "scout_defeated"; this.spawnReward(this.gold, this.scoutSpawn.x + 18, this.scoutSpawn.y + 36, 0.36); this.syncProgress(); this.setHintText("Scout defeated. Pick up the gold token and return to Alden."); }
     else this.setHintText(`Solid hit. Scout is reeling (${this.scoutHealth} left).`);
   }
 
   private damageArcher() {
     if (!this.archerAlive) return;
-    this.archerHealth -= 1; this.archer.setVelocity(this.facing === "left" ? -220 : 220, -40); this.cameras.main.shake(140, 0.004);
+    this.archerHealth -= 1; this.archer.setVelocity(this.facing === "left" ? -220 : 220, -40); this.cameras.main.shake(140, 0.004); playSfx(this, SOUND_KEYS.enemyHit, { rate: 0.95 });
     if (this.archerHealth <= 0) { this.archerAlive = false; this.archer.disableBody(true, true); this.clearArrows(); this.questStage = "archer_defeated"; this.spawnReward(this.sigil, this.archerSpawn.x, this.archerSpawn.y + 30, 1.3); this.syncProgress(); this.setHintText("Archer defeated. Recover the arrow sigil."); }
     else this.setHintText(`The archer staggered (${this.archerHealth} left).`);
   }
@@ -301,14 +304,18 @@ export class OverworldScene extends Phaser.Scene {
   private damagePlayer() {
     if (this.time.now < this.invulnerableUntil) return;
     this.invulnerableUntil = this.time.now + 900; this.playerHealth = Math.max(10, this.playerHealth - 10); this.syncProgress(); this.cameras.main.shake(140, 0.004);
-    this.tweens.add({ targets: this.player, alpha: { from: 0.45, to: 1 }, duration: 120, yoyo: true, repeat: 3 }); this.setHintText(`Warrior hit. Health ${this.playerHealth} / ${PLAYER_MAX_HEALTH}.`);
+    this.tweens.add({ targets: this.player, alpha: { from: 0.45, to: 1 }, duration: 120, yoyo: true, repeat: 3 }); playSfx(this, SOUND_KEYS.playerHit, { rate: 0.92 }); this.setHintText(`Warrior hit. Health ${this.playerHealth} / ${PLAYER_MAX_HEALTH}.`);
   }
 
   private spawnReward(sprite: Phaser.Physics.Arcade.Sprite, x: number, y: number, scale: number) {
     sprite.enableBody(true, x, y, true, true); sprite.setScale(scale).setVelocity(0, 0); this.tweens.killTweensOf(sprite); this.tweens.add({ targets: sprite, y: sprite.y - 8, duration: 700, yoyo: true, repeat: -1, ease: "Sine.InOut" });
   }
-  private collectGold() { if (this.goldCollected || !this.gold.active) return; this.goldCollected = true; this.inventoryGold = 1; this.questStage = "reward_collected"; this.gold.disableBody(true, true); this.syncProgress(); this.setHintText("Recovered the gold token. Return to Alden."); }
-  private collectSigil() { if (this.sigilCollected || !this.sigil.active) return; this.sigilCollected = true; this.inventorySigil = 1; this.questStage = "route_relic_collected"; this.sigil.disableBody(true, true); this.syncProgress(); this.setHintText("Arrow sigil secured. Return to Alden."); }
+  private collectGold() { if (this.goldCollected || !this.gold.active) return; this.goldCollected = true; this.inventoryGold = 1; this.questStage = "reward_collected"; this.gold.disableBody(true, true); playSfx(this, SOUND_KEYS.pickup, { rate: 1.04 }); this.syncProgress(); this.setHintText("Recovered the gold token. Return to Alden."); }
+  private collectSigil() { if (this.sigilCollected || !this.sigil.active) return; this.sigilCollected = true; this.inventorySigil = 1; this.questStage = "route_relic_collected"; this.sigil.disableBody(true, true); playSfx(this, SOUND_KEYS.pickup, { rate: 0.9 }); this.syncProgress(); this.setHintText("Arrow sigil secured. Return to Alden."); }
+  private tryRewardPickup() {
+    if (!this.goldCollected && this.gold.active && Phaser.Math.Distance.Between(this.player.x, this.player.y, this.gold.x, this.gold.y) < 52) this.collectGold();
+    if (!this.sigilCollected && this.sigil.active && Phaser.Math.Distance.Between(this.player.x, this.player.y, this.sigil.x, this.sigil.y) < 52) this.collectSigil();
+  }
 
   private openDialogue() {
     const nextStage = getDialogueStartStage(this.questStage);

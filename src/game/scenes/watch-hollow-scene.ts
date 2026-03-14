@@ -1,4 +1,5 @@
 import * as Phaser from "phaser";
+import { playSfx, preloadGameAudio, SOUND_KEYS, startAmbientLoop } from "@/game/audio/game-audio";
 
 import {
   AGGRO_DISTANCE,
@@ -67,6 +68,7 @@ export class WatchHollowScene extends Phaser.Scene {
   }
 
   preload() {
+    preloadGameAudio(this);
     this.load.image("terrain-tiles", "/assets/terrain/tileset/tilemap-color1.png");
     this.load.image("water-foam", "/assets/terrain/tileset/water-foam.png");
     this.load.image("tree-1", "/assets/terrain/resources/tree-1.png");
@@ -104,6 +106,7 @@ export class WatchHollowScene extends Phaser.Scene {
     this.createInput();
     this.createAnimations();
     this.createColliders();
+    startAmbientLoop(this, SOUND_KEYS.ambientWatchHollow, { volume: 0.115 });
 
     if (this.questStage === "watch_hollow_completed") {
       this.scoutFrontAlive = false;
@@ -278,6 +281,7 @@ export class WatchHollowScene extends Phaser.Scene {
     this.player.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
       this.isAttacking = false;
     });
+    playSfx(this, SOUND_KEYS.swing, { rate: 1.02 });
     this.time.delayedCall(90, () => {
       this.attackActive = true;
       (this.attackZone.body as Phaser.Physics.Arcade.Body).enable = true;
@@ -377,6 +381,7 @@ export class WatchHollowScene extends Phaser.Scene {
 
     enemy.setVelocity(this.facing === "left" ? -220 : 220, -40);
     this.cameras.main.shake(120, 0.003);
+    playSfx(this, SOUND_KEYS.enemyHit, { rate: which === "front" ? 1.05 : 0.98 });
 
     if (which === "front") this.scoutFrontHealth = nextHealth;
     else this.scoutRearHealth = nextHealth;
@@ -395,6 +400,7 @@ export class WatchHollowScene extends Phaser.Scene {
     this.archerHealth -= 1;
     this.archer.setVelocity(this.facing === "left" ? -220 : 220, -40);
     this.cameras.main.shake(140, 0.004);
+    playSfx(this, SOUND_KEYS.enemyHit, { rate: 0.92 });
     if (this.archerHealth <= 0) {
       this.archerAlive = false;
       this.archer.disableBody(true, true);
@@ -413,6 +419,7 @@ export class WatchHollowScene extends Phaser.Scene {
 
     this.questStage = "watch_hollow_completed";
     this.syncProgress("watch_hollow");
+    playSfx(this, SOUND_KEYS.routeClear, { volume: 0.46, rate: 0.96 });
     this.setHintText("Watch Hollow secured. Return east to Moonvale.");
   }
 
@@ -423,6 +430,7 @@ export class WatchHollowScene extends Phaser.Scene {
     this.syncProgress("watch_hollow");
     this.cameras.main.shake(140, 0.004);
     this.tweens.add({ targets: this.player, alpha: { from: 0.45, to: 1 }, duration: 120, yoyo: true, repeat: 3 });
+    playSfx(this, SOUND_KEYS.playerHit, { rate: 0.9 });
     this.setHintText(`Warrior hit. Health ${this.playerHealth} / ${PLAYER_MAX_HEALTH}.`);
   }
 

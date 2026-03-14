@@ -94,12 +94,32 @@ const milestones = [
   },
   {
     title: "Sounding Steel",
-    status: "Next",
-    summary: "Add the first combat and world sound layer so Moonvale stops feeling silent while the route structure continues to grow.",
+    status: "Complete",
+    summary: "Added the first combat sound pass so swings, hits, pickups, and route clears finally land with some weight across Moonvale's frontier routes.",
     details: [
-      "Add sword swings, hits, pickups, and route-clear cues to make combat feedback land harder.",
-      "Introduce ambient scene layers so the outpost, grove, and hollow feel distinct even when the art set is shared.",
-      "Make the audio system easy to extend so each future frontier route can declare its own sound palette without scene copy-paste.",
+      "Added a small shared sound helper and generated the first in-repo SFX set for swings, hits, pickups, and route-clear cues.",
+      "Wired combat audio through the outpost, wider grove, and Watch Hollow so the frontier routes share one extendable sound layer instead of scene-local hacks.",
+      "Improved reward feedback so pickups like the arrow sigil now feel more reliable both visually and audibly when the route resolves.",
+    ],
+  },
+  {
+    title: "Echoes Of Moonvale",
+    status: "Complete",
+    summary: "Added area ambience and a shared sound toggle so the outpost, wider grove, and Watch Hollow finally feel like different spaces instead of one silent map with effects.",
+    details: [
+      "Added a first ambient loop set for the outpost, wider grove, and Watch Hollow so each route carries its own audio bed.",
+      "Hooked Phaser audio mute state into a browser-stored sound toggle so the field kit can control audio without reloading the game state.",
+      "Kept the new ambience on the same shared audio path as combat SFX so future sound expansion stays centralized instead of scene-fragmented.",
+    ],
+  },
+  {
+    title: "Lantern Routes",
+    status: "Next",
+    summary: "Use stronger route landmarks, prompts, and scene identity so new frontier branches are easier to read without leaning only on the ledger.",
+    details: [
+      "Add clearer environmental signposting and gate dressing for each route transition.",
+      "Introduce more route-specific props or visual motifs so the branch structure reads even before combat starts.",
+      "Use the new quest and audio systems to support route identity instead of relying on text alone.",
     ],
   },
 ];
@@ -135,6 +155,16 @@ const sidequests = [
       "Dropped the broken bottom action rail and oversized panel experiments that were making the interface feel cluttered instead of useful.",
       "Retuned the top status and route cards with stronger contrast, smaller footprints, and a final Moonvale Warrior title that stays inside the shell.",
       "Added cropped Tiny Swords UI assets into the repo so future HUD work can build from stable pieces instead of stretching source sheets directly.",
+    ],
+  },
+  {
+    title: "Reward Pickup Reliability Patch",
+    status: "Complete",
+    summary: "Smoothed out flaky reward collection so route drops like the arrow sigil resolve reliably when the player reaches them.",
+    details: [
+      "Increased the reward pickup bodies and added a proximity fallback so floating drops do not depend on a narrow overlap frame.",
+      "Kept the fix scoped to the reward flow instead of papering over it with broader scene state resets.",
+      "Paired the pickup fix with stronger reward SFX so collecting route proof feels clear instead of ambiguous.",
     ],
   },
 ];
@@ -181,7 +211,7 @@ export default function MilestonesPage() {
                 </Link>
                 <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-400/12 px-4 py-2 text-sm text-emerald-100">
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-300" />
-                  9 milestones complete
+                  11 milestones complete
                 </div>
               </div>
             </div>
@@ -197,7 +227,7 @@ export default function MilestonesPage() {
               <div className="grid grid-cols-3 gap-3">
                 <ProgressCard label="Core" value="Phaser + input" />
                 <ProgressCard label="World" value="Outpost + grove" />
-                <ProgressCard label="Next" value="Sounding steel" />
+                <ProgressCard label="Next" value="Lantern routes" />
               </div>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import * as Phaser from "phaser";
+import { playSfx, preloadGameAudio, SOUND_KEYS, startAmbientLoop } from "@/game/audio/game-audio";
 
 import {
   AGGRO_DISTANCE,
@@ -64,6 +65,7 @@ export class WiderGroveScene extends Phaser.Scene {
   }
 
   preload() {
+    preloadGameAudio(this);
     this.load.image("terrain-tiles", "/assets/terrain/tileset/tilemap-color1.png");
     this.load.image("water-foam", "/assets/terrain/tileset/water-foam.png");
     this.load.image("tree-1", "/assets/terrain/resources/tree-1.png");
@@ -103,6 +105,7 @@ export class WiderGroveScene extends Phaser.Scene {
     this.createInput();
     this.createAnimations();
     this.createColliders();
+    startAmbientLoop(this, SOUND_KEYS.ambientWiderGrove, { volume: 0.11 });
 
     if (this.questStage === "wider_grove_completed") {
       this.scoutAlive = false;
@@ -317,6 +320,7 @@ export class WiderGroveScene extends Phaser.Scene {
     this.player.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
       this.isAttacking = false;
     });
+    playSfx(this, SOUND_KEYS.swing, { rate: 1.04 });
     this.time.delayedCall(90, () => {
       this.attackActive = true;
       (this.attackZone.body as Phaser.Physics.Arcade.Body).enable = true;
@@ -405,6 +409,7 @@ export class WiderGroveScene extends Phaser.Scene {
     this.scoutHealth -= 1;
     this.scout.setVelocity(this.facing === "left" ? -220 : 220, -40);
     this.cameras.main.shake(120, 0.003);
+    playSfx(this, SOUND_KEYS.enemyHit, { rate: 1.04 });
     if (this.scoutHealth <= 0) {
       this.scoutAlive = false;
       this.scout.disableBody(true, true);
@@ -418,6 +423,7 @@ export class WiderGroveScene extends Phaser.Scene {
     this.archerHealth -= 1;
     this.archer.setVelocity(this.facing === "left" ? -220 : 220, -40);
     this.cameras.main.shake(140, 0.004);
+    playSfx(this, SOUND_KEYS.enemyHit, { rate: 0.95 });
     if (this.archerHealth <= 0) {
       this.archerAlive = false;
       this.archer.disableBody(true, true);
@@ -436,6 +442,7 @@ export class WiderGroveScene extends Phaser.Scene {
 
     this.questStage = "wider_grove_completed";
     this.syncProgress("wider_grove");
+    playSfx(this, SOUND_KEYS.routeClear, { volume: 0.46 });
     this.setHintText("Wider grove secured. Return west to the outpost.");
   }
 
@@ -452,6 +459,7 @@ export class WiderGroveScene extends Phaser.Scene {
       yoyo: true,
       repeat: 3,
     });
+    playSfx(this, SOUND_KEYS.playerHit, { rate: 0.92 });
     this.setHintText(`Warrior hit. Health ${this.playerHealth} / ${PLAYER_MAX_HEALTH}.`);
   }
 

@@ -2,9 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { LiveQuestPanel } from "@/components/live-quest-panel";
+import {
+  AUDIO_SETTINGS_EVENT,
+  readStoredAudioEnabled,
+  saveStoredAudioEnabled,
+} from "@/lib/audio-settings";
 
 const controls = [
   "Move: WASD, arrows, stick, or D-pad",
@@ -15,6 +20,24 @@ const controls = [
 
 export function FieldLedgerDock() {
   const [open, setOpen] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(() =>
+    typeof window === "undefined" ? true : readStoredAudioEnabled(window.localStorage),
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const sync = (event: Event) => {
+      const customEvent = event as CustomEvent<boolean>;
+      if (typeof customEvent.detail === "boolean") {
+        setAudioEnabled(customEvent.detail);
+        return;
+      }
+      setAudioEnabled(readStoredAudioEnabled(window.localStorage));
+    };
+
+    window.addEventListener(AUDIO_SETTINGS_EVENT, sync);
+    return () => window.removeEventListener(AUDIO_SETTINGS_EVENT, sync);
+  }, []);
 
   return (
     <div className="pointer-events-auto flex flex-col items-end gap-3">
@@ -57,6 +80,16 @@ export function FieldLedgerDock() {
       ) : null}
 
       <div className="flex items-end gap-2">
+        <HudButton
+          label={audioEnabled ? "Sound" : "Muted"}
+          icon="/assets/ui/tiny-swords/icons/icon-06.png"
+          onClick={() => {
+            const next = !audioEnabled;
+            setAudioEnabled(next);
+            saveStoredAudioEnabled(next);
+          }}
+        />
+
         <HudButton
           label={open ? "Close" : "Ledger"}
           icon="/assets/ui/tiny-swords/icons/icon-01.png"
