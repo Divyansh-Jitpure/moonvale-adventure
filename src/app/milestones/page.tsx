@@ -53,6 +53,16 @@ const milestones = [
     ],
   },
   {
+    title: "Scene Systems",
+    status: "Complete",
+    summary: "Split the overworld into cleaner data, progress, and input systems so the next zone can grow without one file owning everything.",
+    details: [
+      "Moved static overworld configuration out of the main scene and into shared data helpers.",
+      "Pulled quest-stage and persistence rules into dedicated progress utilities instead of keeping them buried in scene methods.",
+      "Isolated keyboard and controller handling so new scenes can reuse the same input approach with less duplication.",
+    ],
+  },
+  {
     title: "Wider Grove",
     status: "Next",
     summary: "Turn the outpost into a larger zone with more paths, denser encounters, and better world structure.",
@@ -106,7 +116,7 @@ export default function MilestonesPage() {
                 </Link>
                 <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-400/12 px-4 py-2 text-sm text-emerald-100">
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-300" />
-                  5 milestones complete
+                  6 milestones complete
                 </div>
               </div>
             </div>
